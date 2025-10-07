@@ -4,7 +4,7 @@ import com.ums.system.utils.DatabaseConnection;
 import java.sql.Connection;
 
 public class Main {
-     static void main(String[] args) {
+     static void main() {
         DatabaseConnection dbConnection = DatabaseConnection.getInstance();
         Connection conn = dbConnection.getConnection();
 
