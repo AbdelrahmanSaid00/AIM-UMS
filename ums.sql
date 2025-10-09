@@ -32,3 +32,14 @@ CREATE TABLE admins (
                         user_id INT PRIMARY KEY,
                         FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 );
+
+-- Courses Table
+CREATE TABLE courses (
+                         code VARCHAR(10) PRIMARY KEY,
+                         course_name VARCHAR(100) NOT NULL,
+                         level VARCHAR(20),
+                         major VARCHAR(100),
+                         lecture_time VARCHAR(50),
+                         instructor_id INT,
+                         FOREIGN KEY (instructor_id) REFERENCES users(id) ON DELETE SET NULL
+);
