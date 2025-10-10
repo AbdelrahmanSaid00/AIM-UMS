@@ -9,4 +9,5 @@ public interface QuizDAO {
     void delete(int id);
     Quiz getById(int id);
     List<Quiz> getAll();
+    List<Quiz> getByCourseCode(String courseCode);
 }

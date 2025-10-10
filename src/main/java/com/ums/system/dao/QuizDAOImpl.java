@@ -1,6 +1,5 @@
 package com.ums.system.dao;
 
-import com.ums.system.dao.QuizDAO;
 import com.ums.system.model.Question;
 import com.ums.system.model.Quiz;
 
@@ -11,77 +10,94 @@ import java.util.List;
 public class QuizDAOImpl implements QuizDAO {
 
     private final Connection connection;
+    private final QuestionDAO questionDAO;
 
-    public QuizDAOImpl(Connection connection) {
+    public QuizDAOImpl(Connection connection, QuestionDAO questionDAO) {
         this.connection = connection;
+        this.questionDAO = questionDAO;
     }
 
     @Override
     public void insert(Quiz quiz) {
-        String quizSql = "INSERT INTO quizzes (title) VALUES (?)";
+        String quizSql = "INSERT INTO quizzes (title, course_code) VALUES (?, ?)";
         try (PreparedStatement ps = connection.prepareStatement(quizSql, Statement.RETURN_GENERATED_KEYS)) {
             ps.setString(1, quiz.getTitle());
+            ps.setString(2, quiz.getCourseCode());
             ps.executeUpdate();
 
-            ResultSet rs = ps.getGeneratedKeys();
-            if (rs.next()) {
-                int quizId = rs.getInt(1);
+            try (ResultSet rs = ps.getGeneratedKeys()) {
+                if (rs.next()) {
+                    int quizId = rs.getInt(1);
 
-                String questionSql = "INSERT INTO questions (quiz_id, text, option1, option2, option3, option4, correct_option_index) VALUES (?, ?, ?, ?, ?, ?, ?)";
-                try (PreparedStatement qps = connection.prepareStatement(questionSql)) {
-                    for (Question q : quiz.getQuestions()) {
-                        qps.setInt(1, quizId);
-                        qps.setString(2, q.getText());
-                        for (int i = 0; i < 4; i++) {
-                            qps.setString(i + 3, q.getOptions().size() > i ? q.getOptions().get(i) : null);
+                    if (quiz.getQuestions() != null && !quiz.getQuestions().isEmpty()) {
+                        for (Question q : quiz.getQuestions()) {
+                            questionDAO.insert(q, quizId);
                         }
-                        qps.setInt(7, q.getCorrectOptionIndex());
-                        qps.addBatch();
                     }
-                    qps.executeBatch();
                 }
             }
         } catch (SQLException e) {
-            e.printStackTrace();
+            System.err.println("Error inserting quiz: " + e.getMessage());
         }
     }
 
     @Override
     public void update(Quiz quiz) {
-        String sql = "UPDATE quizzes SET title=? WHERE id=?";
+        String sql = "UPDATE quizzes SET title = ?, course_code = ? WHERE id = ?";
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
             ps.setString(1, quiz.getTitle());
-            ps.setInt(2, quiz.getId());
+            ps.setString(2, quiz.getCourseCode());
+            ps.setInt(3, quiz.getId());
             ps.executeUpdate();
+
+            if (quiz.getQuestions() != null && !quiz.getQuestions().isEmpty()) {
+                for (Question q : quiz.getQuestions()) {
+                    questionDAO.update(q);
+                }
+            }
         } catch (SQLException e) {
-            e.printStackTrace();
+            System.err.println("Error updating quiz: " + e.getMessage());
         }
     }
 
     @Override
     public void delete(int id) {
-        try (PreparedStatement ps = connection.prepareStatement("DELETE FROM quizzes WHERE id=?")) {
-            ps.setInt(1, id);
-            ps.executeUpdate();
+        try {
+
+            List<Question> questions = questionDAO.getByQuizId(id);
+            for (Question q : questions) {
+                questionDAO.delete(q.getId());
+            }
+
+            String sql = "DELETE FROM quizzes WHERE id = ?";
+            try (PreparedStatement ps = connection.prepareStatement(sql)) {
+                ps.setInt(1, id);
+                ps.executeUpdate();
+            }
+
         } catch (SQLException e) {
-            e.printStackTrace();
+            System.err.println("Error deleting quiz: " + e.getMessage());
         }
     }
 
     @Override
     public Quiz getById(int id) {
-        try (PreparedStatement ps = connection.prepareStatement("SELECT * FROM quizzes WHERE id=?")) {
+        String sql = "SELECT * FROM quizzes WHERE id = ?";
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
             ps.setInt(1, id);
-            ResultSet rs = ps.executeQuery();
-            if (rs.next()) {
-                return new Quiz(
-                        rs.getInt("id"),
-                        rs.getString("title"),
-                        new ArrayList<>()
-                );
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    List<Question> questions = questionDAO.getByQuizId(id);
+                    return new Quiz(
+                            rs.getInt("id"),
+                            rs.getString("title"),
+                            rs.getString("course_code"),
+                            questions
+                    );
+                }
             }
         } catch (SQLException e) {
-            e.printStackTrace();
+            System.err.println("Error fetching quiz by ID: " + e.getMessage());
         }
         return null;
     }
@@ -89,18 +105,52 @@ public class QuizDAOImpl implements QuizDAO {
     @Override
     public List<Quiz> getAll() {
         List<Quiz> quizzes = new ArrayList<>();
+        String sql = "SELECT * FROM quizzes";
         try (Statement st = connection.createStatement();
-             ResultSet rs = st.executeQuery("SELECT * FROM quizzes")) {
+             ResultSet rs = st.executeQuery(sql)) {
+
             while (rs.next()) {
+                int quizId = rs.getInt("id");
+                List<Question> questions = questionDAO.getByQuizId(quizId);
+
                 quizzes.add(new Quiz(
-                        rs.getInt("id"),
+                        quizId,
                         rs.getString("title"),
-                        new ArrayList<>()
+                        rs.getString("course_code"),
+                        questions
                 ));
             }
+
         } catch (SQLException e) {
-            e.printStackTrace();
+            System.err.println("Error fetching all quizzes: " + e.getMessage());
         }
+        return quizzes;
+    }
+
+    @Override
+    public List<Quiz> getByCourseCode(String courseCode) {
+        List<Quiz> quizzes = new ArrayList<>();
+        String sql = "SELECT id, title, course_code FROM quizzes WHERE course_code = ?";
+
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setString(1, courseCode);
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    int quizId = rs.getInt("id");
+                    List<Question> questions = questionDAO.getByQuizId(quizId);
+
+                    quizzes.add(new Quiz(
+                            quizId,
+                            rs.getString("title"),
+                            rs.getString("course_code"),
+                            questions
+                    ));
+                }
+            }
+        } catch (SQLException e) {
+            System.err.println("Error fetching quizzes by course code: " + e.getMessage());
+        }
+
         return quizzes;
     }
 }
