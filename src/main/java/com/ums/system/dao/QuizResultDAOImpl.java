@@ -76,46 +76,4 @@ public class QuizResultDAOImpl implements QuizResultDAO {
         }
         return list;
     }
-
-    // ✅ Existence check by ID
-    public boolean existsById(int id) {
-        String sql = "SELECT 1 FROM quiz_results WHERE id = ?";
-        try (PreparedStatement ps = connection.prepareStatement(sql)) {
-            ps.setInt(1, id);
-            try (ResultSet rs = ps.executeQuery()) {
-                return rs.next();
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-            return false;
-        }
-    }
-
-    // ✅ Existence check by student ID
-    public boolean existsByStudentId(int studentId) {
-        String sql = "SELECT 1 FROM quiz_results WHERE student_id = ?";
-        try (PreparedStatement ps = connection.prepareStatement(sql)) {
-            ps.setInt(1, studentId);
-            try (ResultSet rs = ps.executeQuery()) {
-                return rs.next();
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-            return false;
-        }
-    }
-
-    // ✅ Existence check by quiz ID
-    public boolean existsByQuizId(int quizId) {
-        String sql = "SELECT 1 FROM quiz_results WHERE quiz_id = ?";
-        try (PreparedStatement ps = connection.prepareStatement(sql)) {
-            ps.setInt(1, quizId);
-            try (ResultSet rs = ps.executeQuery()) {
-                return rs.next();
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-            return false;
-        }
-    }
 }

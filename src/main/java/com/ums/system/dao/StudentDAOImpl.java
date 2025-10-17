@@ -47,42 +47,31 @@ public class StudentDAOImpl implements UserDAO<Student> {
         String userSql = "INSERT INTO users (name, email, password, role) VALUES (?, ?, ?, ?)";
         String studentSql = "INSERT INTO students (user_id, level, major, grade, department) VALUES (?, ?, ?, ?, ?)";
 
-        try {
-            connection.setAutoCommit(false); // ✅ Start transaction
+        try (
+                PreparedStatement psUser = connection.prepareStatement(userSql, Statement.RETURN_GENERATED_KEYS);
+                PreparedStatement psStudent = connection.prepareStatement(studentSql)
+        ) {
+            // Insert into users
+            psUser.setString(1, s.getName());
+            psUser.setString(2, s.getEmail());
+            psUser.setString(3, s.getPassword());
+            psUser.setString(4, s.getRole().toString());
+            psUser.executeUpdate();
 
-            try (
-                    PreparedStatement psUser = connection.prepareStatement(userSql, Statement.RETURN_GENERATED_KEYS);
-                    PreparedStatement psStudent = connection.prepareStatement(studentSql)
-            ) {
-                // Insert into users
-                psUser.setString(1, s.getName());
-                psUser.setString(2, s.getEmail());
-                psUser.setString(3, s.getPassword());
-                psUser.setString(4, s.getRole().toString());
-                psUser.executeUpdate();
+            // Get generated user_id
+            ResultSet rs = psUser.getGeneratedKeys();
+            int userId = 0;
+            if (rs.next()) userId = rs.getInt(1);
 
-                // Get generated user_id
-                ResultSet rs = psUser.getGeneratedKeys();
-                int userId = 0;
-                if (rs.next()) userId = rs.getInt(1);
+            // Insert into students
+            psStudent.setInt(1, userId);
+            psStudent.setInt(2, s.getLevel());
+            psStudent.setString(3, s.getMajor());
+            psStudent.setDouble(4, s.getGrade());
+            psStudent.setString(5, s.getDepartmentName().toString());
+            psStudent.executeUpdate();
 
-                // Insert into students
-                psStudent.setInt(1, userId);
-                psStudent.setInt(2, s.getLevel());
-                psStudent.setString(3, s.getMajor());
-                psStudent.setDouble(4, s.getGrade());
-                psStudent.setString(5, s.getDepartmentName().toString());
-                psStudent.executeUpdate();
-
-                connection.commit(); // ✅ Commit both inserts together
-                System.out.println("✅ Student inserted successfully.");
-            } catch (SQLException e) {
-                connection.rollback(); // Rollback on error
-                e.printStackTrace();
-            } finally {
-                connection.setAutoCommit(true);
-            }
-
+            System.out.println("✅ Student inserted successfully.");
         } catch (SQLException e) {
             e.printStackTrace();
         }
