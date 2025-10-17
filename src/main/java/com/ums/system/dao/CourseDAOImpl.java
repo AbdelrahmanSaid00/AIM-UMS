@@ -14,6 +14,11 @@ public class CourseDAOImpl implements CourseDAO {
 
     @Override
     public void insert(Course c) {
+        if (existsByCode(c.getCode())) {
+            System.out.println("Course with code " + c.getCode() + " already exists.");
+            return;
+        }
+
         String sql = "INSERT INTO courses (code, course_name, level, major, lecture_time, instructor_id) VALUES (?, ?, ?, ?, ?, ?)";
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
             ps.setString(1, c.getCode());
@@ -23,6 +28,7 @@ public class CourseDAOImpl implements CourseDAO {
             ps.setString(5, c.getLectureTime());
             ps.setInt(6, c.getInstructorId());
             ps.executeUpdate();
+            System.out.println("Course inserted successfully.");
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -30,6 +36,11 @@ public class CourseDAOImpl implements CourseDAO {
 
     @Override
     public void update(Course c) {
+        if (!existsByCode(c.getCode())) {
+            System.out.println("No course found with code " + c.getCode());
+            return;
+        }
+
         String sql = "UPDATE courses SET course_name=?, level=?, major=?, lecture_time=?, instructor_id=? WHERE code=?";
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
             ps.setString(1, c.getCourseName());
@@ -39,6 +50,7 @@ public class CourseDAOImpl implements CourseDAO {
             ps.setInt(5, c.getInstructorId());
             ps.setString(6, c.getCode());
             ps.executeUpdate();
+            System.out.println("Course updated successfully.");
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -46,10 +58,16 @@ public class CourseDAOImpl implements CourseDAO {
 
     @Override
     public void delete(String code) {
+        if (!existsByCode(code)) {
+            System.out.println("No course found with code " + code);
+            return;
+        }
+
         String sql = "DELETE FROM courses WHERE code=?";
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
             ps.setString(1, code);
             ps.executeUpdate();
+            System.out.println("Course deleted successfully.");
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -101,5 +119,18 @@ public class CourseDAOImpl implements CourseDAO {
             e.printStackTrace();
         }
         return courses;
+    }
+
+
+    public boolean existsByCode(String code) {
+        String sql = "SELECT 1 FROM courses WHERE code=?";
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setString(1, code);
+            ResultSet rs = ps.executeQuery();
+            return rs.next(); // true if found
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return false;
     }
 }

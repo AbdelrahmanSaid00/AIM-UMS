@@ -11,8 +11,39 @@ public class StudentDAOImpl implements UserDAO<Student> {
         this.connection = connection;
     }
 
+    // ✅ Check if a student exists by email
+    boolean existsByEmail(String email) {
+        String sql = "SELECT 1 FROM users WHERE email = ? AND role = 'STUDENT' LIMIT 1";
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setString(1, email);
+            ResultSet rs = ps.executeQuery();
+            return rs.next();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
+    // ✅ Check if a student exists by ID
+    boolean existsById(int id) {
+        String sql = "SELECT 1 FROM users WHERE id = ? AND role = 'STUDENT' LIMIT 1";
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setInt(1, id);
+            ResultSet rs = ps.executeQuery();
+            return rs.next();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
     @Override
     public void insert(Student s) {
+        if (existsByEmail(s.getEmail())) {
+            System.out.println("⚠️ Student with this email already exists: " + s.getEmail());
+            return;
+        }
+
         String userSql = "INSERT INTO users (name, email, password, role) VALUES (?, ?, ?, ?)";
         String studentSql = "INSERT INTO students (user_id, level, major, grade, department) VALUES (?, ?, ?, ?, ?)";
 
@@ -20,18 +51,19 @@ public class StudentDAOImpl implements UserDAO<Student> {
                 PreparedStatement psUser = connection.prepareStatement(userSql, Statement.RETURN_GENERATED_KEYS);
                 PreparedStatement psStudent = connection.prepareStatement(studentSql)
         ) {
+            // Insert into users
             psUser.setString(1, s.getName());
             psUser.setString(2, s.getEmail());
             psUser.setString(3, s.getPassword());
             psUser.setString(4, s.getRole().toString());
             psUser.executeUpdate();
 
+            // Get generated user_id
             ResultSet rs = psUser.getGeneratedKeys();
             int userId = 0;
-            if (rs.next()) {
-                userId = rs.getInt(1);
-            }
+            if (rs.next()) userId = rs.getInt(1);
 
+            // Insert into students
             psStudent.setInt(1, userId);
             psStudent.setInt(2, s.getLevel());
             psStudent.setString(3, s.getMajor());
@@ -39,6 +71,7 @@ public class StudentDAOImpl implements UserDAO<Student> {
             psStudent.setString(5, s.getDepartmentName().toString());
             psStudent.executeUpdate();
 
+            System.out.println("✅ Student inserted successfully.");
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -46,6 +79,11 @@ public class StudentDAOImpl implements UserDAO<Student> {
 
     @Override
     public void update(Student s) {
+        if (!existsById(s.getId())) {
+            System.out.println("⚠️ Cannot update: student not found with ID " + s.getId());
+            return;
+        }
+
         String userSql = "UPDATE users SET name=?, email=?, password=?, role=? WHERE id=?";
         String studentSql = "UPDATE students SET level=?, major=?, grade=?, department=? WHERE user_id=?";
 
@@ -67,6 +105,7 @@ public class StudentDAOImpl implements UserDAO<Student> {
             psStudent.setInt(5, s.getId());
             psStudent.executeUpdate();
 
+            System.out.println("✅ Student updated successfully.");
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -74,9 +113,15 @@ public class StudentDAOImpl implements UserDAO<Student> {
 
     @Override
     public void delete(int id) {
+        if (!existsById(id)) {
+            System.out.println("⚠️ Student with ID " + id + " does not exist.");
+            return;
+        }
+
         try (PreparedStatement ps = connection.prepareStatement("DELETE FROM users WHERE id=?")) {
             ps.setInt(1, id);
             ps.executeUpdate();
+            System.out.println("✅ Student deleted successfully.");
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -96,6 +141,7 @@ public class StudentDAOImpl implements UserDAO<Student> {
             ResultSet rs = ps.executeQuery();
             if (rs.next()) {
                 return new Student(
+                        rs.getInt("id"),
                         rs.getString("name"),
                         rs.getString("email"),
                         rs.getString("password"),
@@ -128,6 +174,7 @@ public class StudentDAOImpl implements UserDAO<Student> {
 
             while (rs.next()) {
                 list.add(new Student(
+                        rs.getInt("id"),
                         rs.getString("name"),
                         rs.getString("email"),
                         rs.getString("password"),
