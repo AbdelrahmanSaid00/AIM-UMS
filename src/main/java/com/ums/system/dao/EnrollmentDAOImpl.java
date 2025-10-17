@@ -24,11 +24,38 @@ public class EnrollmentDAOImpl implements EnrollmentDAO {
 
     @Override
     public void enrollStudentInCourse(int studentId, String courseCode) {
-        String sql = "INSERT INTO student_course (student_id, course_code) VALUES (?, ?)";
-        try (PreparedStatement ps = connection.prepareStatement(sql)) {
-            ps.setInt(1, studentId);
-            ps.setString(2, courseCode);
-            ps.executeUpdate();
+        try {
+            // ✅ Check if student exists
+            if (!studentDAO.existsById(studentId)) {
+                System.err.println("Cannot enroll: Student with ID " + studentId + " does not exist.");
+                return;
+            }
+
+            // ✅ Check if course exists
+            if (!courseDAO.existsByCode(courseCode)) {
+                System.err.println("Cannot enroll: Course with code " + courseCode + " does not exist.");
+                return;
+            }
+
+            // ✅ Check if already enrolled
+            String checkSql = "SELECT COUNT(*) FROM student_course WHERE student_id=? AND course_code=?";
+            try (PreparedStatement checkPs = connection.prepareStatement(checkSql)) {
+                checkPs.setInt(1, studentId);
+                checkPs.setString(2, courseCode);
+                ResultSet rs = checkPs.executeQuery();
+                if (rs.next() && rs.getInt(1) > 0) {
+                    System.err.println("Student " + studentId + " is already enrolled in course " + courseCode);
+                    return;
+                }
+            }
+
+            // ✅ Enroll student
+            String sql = "INSERT INTO student_course (student_id, course_code) VALUES (?, ?)";
+            try (PreparedStatement ps = connection.prepareStatement(sql)) {
+                ps.setInt(1, studentId);
+                ps.setString(2, courseCode);
+                ps.executeUpdate();
+            }
         } catch (SQLException e) {
             System.err.println("Error enrolling student " + studentId + " in course " + courseCode);
             e.printStackTrace();
@@ -37,11 +64,26 @@ public class EnrollmentDAOImpl implements EnrollmentDAO {
 
     @Override
     public void removeStudentFromCourse(int studentId, String courseCode) {
-        String sql = "DELETE FROM student_course WHERE student_id=? AND course_code=?";
-        try (PreparedStatement ps = connection.prepareStatement(sql)) {
-            ps.setInt(1, studentId);
-            ps.setString(2, courseCode);
-            ps.executeUpdate();
+        try {
+            // ✅ Check if enrollment exists
+            String checkSql = "SELECT COUNT(*) FROM student_course WHERE student_id=? AND course_code=?";
+            try (PreparedStatement checkPs = connection.prepareStatement(checkSql)) {
+                checkPs.setInt(1, studentId);
+                checkPs.setString(2, courseCode);
+                ResultSet rs = checkPs.executeQuery();
+                if (rs.next() && rs.getInt(1) == 0) {
+                    System.err.println("Cannot remove: Student " + studentId + " is not enrolled in course " + courseCode);
+                    return;
+                }
+            }
+
+            // ✅ Remove enrollment
+            String sql = "DELETE FROM student_course WHERE student_id=? AND course_code=?";
+            try (PreparedStatement ps = connection.prepareStatement(sql)) {
+                ps.setInt(1, studentId);
+                ps.setString(2, courseCode);
+                ps.executeUpdate();
+            }
         } catch (SQLException e) {
             System.err.println("Error removing student " + studentId + " from course " + courseCode);
             e.printStackTrace();

@@ -8,7 +8,8 @@ public abstract class User {
     protected String password;
     protected Role role;
 
-    public User(String name, String email, String password, Role role) {
+    public User(int id, String name, String email, String password, Role role) {
+        this.Id = id;
         this.name = name;
         this.email = email;
         this.password = password;

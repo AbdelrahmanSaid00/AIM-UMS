@@ -17,8 +17,25 @@ public class QuizDAOImpl implements QuizDAO {
         this.questionDAO = questionDAO;
     }
 
+    private boolean existsById(int id) {
+        String sql = "SELECT COUNT(*) FROM quizzes WHERE id = ?";
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setInt(1, id);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) return rs.getInt(1) > 0;
+        } catch (SQLException e) {
+            System.err.println("Error checking quiz existence: " + e.getMessage());
+        }
+        return false;
+    }
+
     @Override
     public void insert(Quiz quiz) {
+        if (quiz == null || quiz.getTitle() == null || quiz.getCourseCode() == null) {
+            System.err.println("Invalid quiz data — cannot insert null values.");
+            return;
+        }
+
         String quizSql = "INSERT INTO quizzes (title, course_code) VALUES (?, ?)";
         try (PreparedStatement ps = connection.prepareStatement(quizSql, Statement.RETURN_GENERATED_KEYS)) {
             ps.setString(1, quiz.getTitle());
@@ -28,7 +45,6 @@ public class QuizDAOImpl implements QuizDAO {
             try (ResultSet rs = ps.getGeneratedKeys()) {
                 if (rs.next()) {
                     int quizId = rs.getInt(1);
-
                     if (quiz.getQuestions() != null && !quiz.getQuestions().isEmpty()) {
                         for (Question q : quiz.getQuestions()) {
                             questionDAO.insert(q, quizId);
@@ -43,6 +59,15 @@ public class QuizDAOImpl implements QuizDAO {
 
     @Override
     public void update(Quiz quiz) {
+        if (quiz == null || quiz.getId() <= 0) {
+            System.err.println("Invalid quiz ID — cannot update.");
+            return;
+        }
+        if (!existsById(quiz.getId())) {
+            System.err.println("Quiz with ID " + quiz.getId() + " does not exist.");
+            return;
+        }
+
         String sql = "UPDATE quizzes SET title = ?, course_code = ? WHERE id = ?";
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
             ps.setString(1, quiz.getTitle());
@@ -62,8 +87,12 @@ public class QuizDAOImpl implements QuizDAO {
 
     @Override
     public void delete(int id) {
-        try {
+        if (!existsById(id)) {
+            System.err.println("Quiz with ID " + id + " does not exist — cannot delete.");
+            return;
+        }
 
+        try {
             List<Question> questions = questionDAO.getByQuizId(id);
             for (Question q : questions) {
                 questionDAO.delete(q.getId());
@@ -130,8 +159,12 @@ public class QuizDAOImpl implements QuizDAO {
     @Override
     public List<Quiz> getByCourseCode(String courseCode) {
         List<Quiz> quizzes = new ArrayList<>();
-        String sql = "SELECT id, title, course_code FROM quizzes WHERE course_code = ?";
+        if (courseCode == null || courseCode.isBlank()) {
+            System.err.println("Invalid course code — cannot fetch quizzes.");
+            return quizzes;
+        }
 
+        String sql = "SELECT id, title, course_code FROM quizzes WHERE course_code = ?";
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
             ps.setString(1, courseCode);
             try (ResultSet rs = ps.executeQuery()) {
@@ -150,7 +183,6 @@ public class QuizDAOImpl implements QuizDAO {
         } catch (SQLException e) {
             System.err.println("Error fetching quizzes by course code: " + e.getMessage());
         }
-
         return quizzes;
     }
 }

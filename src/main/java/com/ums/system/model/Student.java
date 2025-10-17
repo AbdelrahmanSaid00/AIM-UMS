@@ -10,8 +10,8 @@ public class Student extends User{
     private Department departmentName;
     private double grade;
 
-    public Student(String name, String email, String password, Role role, int level, String major, Set<Course> courses, int alarm, Department departmentName, double grade) {
-        super(name, email, password, role);
+    public Student(int id, String name, String email, String password, Role role, int level, String major, Set<Course> courses, int alarm, Department departmentName, double grade) {
+        super(id, name, email, password, role);
         this.level = level;
         this.major = major;
         this.courses = courses;

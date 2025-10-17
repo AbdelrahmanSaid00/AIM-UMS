@@ -15,31 +15,64 @@ public class AdminDAOImpl implements UserDAO<Admin> {
         this.connection = connection;
     }
 
+    // ----------------- Helper Methods -----------------
+
+    private boolean adminExistsById(int id) {
+        String sql = "SELECT COUNT(*) FROM admins WHERE user_id = ?";
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setInt(1, id);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) return rs.getInt(1) > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
+    private boolean emailExists(String email) {
+        String sql = "SELECT COUNT(*) FROM users WHERE email = ?";
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setString(1, email);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) return rs.getInt(1) > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
+    // ----------------- CRUD Operations -----------------
+
     @Override
     public void insert(Admin admin) {
-        String userSql = "INSERT INTO users (name, email, password, role) VALUES (?, ?, ?, ?)";
-        String adminSql = "INSERT INTO admins (user_id) VALUES (?)";
+        if (emailExists(admin.getEmail())) {
+            System.out.println("⚠️ Admin with email " + admin.getEmail() + " already exists.");
+            return;
+        }
+
+        String insertUser = "INSERT INTO users (name, email, password, role) VALUES (?, ?, ?, ?)";
+        String insertAdmin = "INSERT INTO admins (user_id) VALUES (?)";
 
         try (
-                PreparedStatement psUser = connection.prepareStatement(userSql, Statement.RETURN_GENERATED_KEYS);
-                PreparedStatement psAdmin = connection.prepareStatement(adminSql)
+                PreparedStatement psUser = connection.prepareStatement(insertUser, Statement.RETURN_GENERATED_KEYS);
+                PreparedStatement psAdmin = connection.prepareStatement(insertAdmin)
         ) {
-
             psUser.setString(1, admin.getName());
             psUser.setString(2, admin.getEmail());
             psUser.setString(3, admin.getPassword());
             psUser.setString(4, admin.getRole().toString());
             psUser.executeUpdate();
 
-            ResultSet rs = psUser.getGeneratedKeys();
-            int userId = 0;
-            if (rs.next()) {
-                userId = rs.getInt(1);
+            try (ResultSet rs = psUser.getGeneratedKeys()) {
+                if (rs.next()) {
+                    int userId = rs.getInt(1);
+                    psAdmin.setInt(1, userId);
+                    psAdmin.executeUpdate();
+                    System.out.println("✅ Admin inserted successfully with user_id=" + userId);
+                } else {
+                    System.out.println("❌ Failed to retrieve generated user ID.");
+                }
             }
-
-            psAdmin.setInt(1, userId);
-            psAdmin.executeUpdate();
-
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -47,13 +80,23 @@ public class AdminDAOImpl implements UserDAO<Admin> {
 
     @Override
     public void update(Admin admin) {
+        if (!adminExistsById(admin.getId())) {
+            System.out.println("⚠️ Admin with ID " + admin.getId() + " does not exist.");
+            return;
+        }
+
         String sql = "UPDATE users SET name=?, email=?, password=? WHERE id=? AND role='ADMIN'";
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
             ps.setString(1, admin.getName());
             ps.setString(2, admin.getEmail());
             ps.setString(3, admin.getPassword());
             ps.setInt(4, admin.getId());
-            ps.executeUpdate();
+            int updated = ps.executeUpdate();
+
+            if (updated > 0)
+                System.out.println("✅ Admin updated successfully.");
+            else
+                System.out.println("❌ Failed to update admin (check ID or role).");
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -61,10 +104,34 @@ public class AdminDAOImpl implements UserDAO<Admin> {
 
     @Override
     public void delete(int id) {
-        String sql = "DELETE FROM users WHERE id=? AND role='ADMIN'";
-        try (PreparedStatement ps = connection.prepareStatement(sql)) {
-            ps.setInt(1, id);
-            ps.executeUpdate();
+        if (!adminExistsById(id)) {
+            System.out.println("⚠️ Admin with ID " + id + " does not exist.");
+            return;
+        }
+
+        String deleteAdmin = "DELETE FROM admins WHERE user_id=?";
+        String deleteUser = "DELETE FROM users WHERE id=? AND role='ADMIN'";
+
+        try {
+            connection.setAutoCommit(false); // Begin transaction
+
+            try (PreparedStatement psAdmin = connection.prepareStatement(deleteAdmin);
+                 PreparedStatement psUser = connection.prepareStatement(deleteUser)) {
+
+                psAdmin.setInt(1, id);
+                psAdmin.executeUpdate();
+
+                psUser.setInt(1, id);
+                psUser.executeUpdate();
+
+                connection.commit();
+                System.out.println("✅ Admin deleted successfully.");
+            } catch (SQLException e) {
+                connection.rollback();
+                throw e;
+            } finally {
+                connection.setAutoCommit(true);
+            }
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -84,6 +151,7 @@ public class AdminDAOImpl implements UserDAO<Admin> {
             ResultSet rs = ps.executeQuery();
             if (rs.next()) {
                 return new Admin(
+                        rs.getInt("id"),
                         rs.getString("name"),
                         rs.getString("email"),
                         rs.getString("password"),
@@ -108,9 +176,9 @@ public class AdminDAOImpl implements UserDAO<Admin> {
 
         try (Statement st = connection.createStatement();
              ResultSet rs = st.executeQuery(sql)) {
-
             while (rs.next()) {
                 admins.add(new Admin(
+                        rs.getInt("id"),
                         rs.getString("name"),
                         rs.getString("email"),
                         rs.getString("password"),
