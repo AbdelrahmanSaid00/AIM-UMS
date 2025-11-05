@@ -38,7 +38,7 @@ public class EnrollmentDAOImpl implements EnrollmentDAO {
             }
 
             // ✅ Check if already enrolled
-            String checkSql = "SELECT COUNT(*) FROM student_course WHERE student_id=? AND course_code=?";
+            String checkSql = "SELECT COUNT(*) FROM student_courses WHERE student_id=? AND course_code=?";
             try (PreparedStatement checkPs = connection.prepareStatement(checkSql)) {
                 checkPs.setInt(1, studentId);
                 checkPs.setString(2, courseCode);
@@ -50,7 +50,7 @@ public class EnrollmentDAOImpl implements EnrollmentDAO {
             }
 
             // ✅ Enroll student
-            String sql = "INSERT INTO student_course (student_id, course_code) VALUES (?, ?)";
+            String sql = "INSERT INTO student_courses (student_id, course_code) VALUES (?, ?)";
             try (PreparedStatement ps = connection.prepareStatement(sql)) {
                 ps.setInt(1, studentId);
                 ps.setString(2, courseCode);
@@ -66,7 +66,7 @@ public class EnrollmentDAOImpl implements EnrollmentDAO {
     public void removeStudentFromCourse(int studentId, String courseCode) {
         try {
             // ✅ Check if enrollment exists
-            String checkSql = "SELECT COUNT(*) FROM student_course WHERE student_id=? AND course_code=?";
+            String checkSql = "SELECT COUNT(*) FROM student_courses WHERE student_id=? AND course_code=?";
             try (PreparedStatement checkPs = connection.prepareStatement(checkSql)) {
                 checkPs.setInt(1, studentId);
                 checkPs.setString(2, courseCode);
@@ -78,7 +78,7 @@ public class EnrollmentDAOImpl implements EnrollmentDAO {
             }
 
             // ✅ Remove enrollment
-            String sql = "DELETE FROM student_course WHERE student_id=? AND course_code=?";
+            String sql = "DELETE FROM student_courses WHERE student_id=? AND course_code=?";
             try (PreparedStatement ps = connection.prepareStatement(sql)) {
                 ps.setInt(1, studentId);
                 ps.setString(2, courseCode);
@@ -93,7 +93,7 @@ public class EnrollmentDAOImpl implements EnrollmentDAO {
     @Override
     public List<Course> getCoursesByStudentId(int studentId) {
         List<Course> courses = new ArrayList<>();
-        String sql = "SELECT course_code FROM student_course WHERE student_id=?";
+        String sql = "SELECT course_code FROM student_courses WHERE student_id=?";
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
             ps.setInt(1, studentId);
             ResultSet rs = ps.executeQuery();
@@ -112,7 +112,7 @@ public class EnrollmentDAOImpl implements EnrollmentDAO {
     @Override
     public List<Student> getStudentsByCourseCode(String courseCode) {
         List<Student> students = new ArrayList<>();
-        String sql = "SELECT student_id FROM student_course WHERE course_code=?";
+        String sql = "SELECT student_id FROM student_courses WHERE course_code=?";
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
             ps.setString(1, courseCode);
             ResultSet rs = ps.executeQuery();
