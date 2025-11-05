@@ -17,6 +17,7 @@ public class MainApp {
     private static StudentService studentService;
     private static QuizService quizService;
     private static EnrollmentDAO enrollmentDAO;
+    private static QuizResultService quizResultService;
 
     public static void main(String[] args) {
         System.out.println("===================================");
@@ -37,6 +38,7 @@ public class MainApp {
             studentService = new StudentServiceImpl(conn);
             quizService = new QuizServiceImpl(conn);
             enrollmentDAO = new EnrollmentDAOImpl(conn);
+            quizResultService = new QuizResultServiceImpl(conn);
 
             // Login
             User loggedInUser = login();
@@ -199,7 +201,8 @@ public class MainApp {
             System.out.println("1. Register for Course");
             System.out.println("2. View My Courses");
             System.out.println("3. View Course Details");
-            System.out.println("4. Logout");
+            System.out.println("4. Take Quiz");
+            System.out.println("5. Logout");
             System.out.print("Choose an option: ");
 
             String choice = scanner.nextLine().trim();
@@ -215,6 +218,9 @@ public class MainApp {
                     viewCourseDetails(student);
                     break;
                 case "4":
+                    takeQuiz(student);
+                    break;
+                case "5":
                     System.out.println("Logging out...");
                     running = false;
                     break;
@@ -526,5 +532,92 @@ public class MainApp {
             System.out.println("Error fetching course details: " + e.getMessage());
         }
     }
-}
 
+    private static void takeQuiz(Student student) {
+        System.out.println("\n--- Take Quiz ---");
+        List<Course> myCourses;
+        try {
+            myCourses = enrollmentDAO.getCoursesByStudentId(student.getId());
+            if (myCourses.isEmpty()) {
+                System.out.println("You are not registered in any courses. Cannot take quiz.");
+                return;
+            }
+        } catch (Exception e) {
+            System.out.println("Error fetching courses: " + e.getMessage());
+            return;
+        }
+
+        System.out.println("Available Quizzes:");
+        List<Quiz> availableQuizzes = new ArrayList<>();
+        for (Course course : myCourses) {
+            List<Quiz> quizzes = quizService.getQuizzesByCourseCode(course.getCode());
+            availableQuizzes.addAll(quizzes);
+        }
+
+        if (availableQuizzes.isEmpty()) {
+            System.out.println("No quizzes available for your courses.");
+            return;
+        }
+
+        for (int i = 0; i < availableQuizzes.size(); i++) {
+            Quiz quiz = availableQuizzes.get(i);
+            System.out.println((i + 1) + ". " + quiz.getTitle() + " (Course: " + quiz.getCourseCode() + ")");
+        }
+
+        System.out.print("Select a quiz to take (1-" + availableQuizzes.size() + "): ");
+        try {
+            int quizIndex = Integer.parseInt(scanner.nextLine().trim()) - 1;
+
+            if (quizIndex < 0 || quizIndex >= availableQuizzes.size()) {
+                System.out.println("Invalid quiz selection.");
+                return;
+            }
+
+            Quiz selectedQuiz = availableQuizzes.get(quizIndex);
+            System.out.println("\n=== Starting Quiz: " + selectedQuiz.getTitle() + " ===");
+
+            // Start the quiz
+            List<Question> questions = selectedQuiz.getQuestions();
+            int score = 0;
+            Map<Question, String> answers = new HashMap<>();
+
+            for (int i = 0; i < questions.size(); i++) {
+                Question question = questions.get(i);
+                System.out.println("\nQuestion " + (i + 1) + ": " + question.getText());
+                List<String> options = question.getOptions();
+                for (int j = 0; j < options.size(); j++) {
+                    System.out.println((j + 1) + ". " + options.get(j));
+                }
+
+                System.out.print("Your answer (1-" + options.size() + "): ");
+                int answerIndex = Integer.parseInt(scanner.nextLine().trim()) - 1;
+
+                if (answerIndex >= 0 && answerIndex < options.size()) {
+                    String chosenAnswer = options.get(answerIndex);
+                    answers.put(question, chosenAnswer);
+
+                    if (answerIndex == question.getCorrectOptionIndex()) {
+                        score++;
+                        System.out.println("✓ Correct!");
+                    } else {
+                        System.out.println("✗ Incorrect. The correct answer was: " + options.get(question.getCorrectOptionIndex()));
+                    }
+                } else {
+                    System.out.println("Invalid answer. Marking as incorrect.");
+                    answers.put(question, "Invalid");
+                }
+            }
+
+            // Save the quiz result
+            QuizResult result = new QuizResult(student, selectedQuiz, score, answers);
+            quizResultService.saveResult(result);
+            System.out.println("\n=== Quiz Completed! ===");
+            System.out.println("Your score: " + score + "/" + questions.size() + " (" + (score * 100 / questions.size()) + "%)");
+        } catch (NumberFormatException e) {
+            System.out.println("Invalid input. Please enter a number.");
+        } catch (Exception e) {
+            System.out.println("Error during quiz: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+}
