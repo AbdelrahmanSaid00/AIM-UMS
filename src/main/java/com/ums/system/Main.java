@@ -174,7 +174,7 @@ private static void showInstructorMenu(Instructor instructor) {
                 viewAssignedCourses(instructor);
                 break;
             case "3":
-                viewAllQuizzes();
+                viewAllQuizzes(instructor);
                 break;
             case "4":
                 System.out.println("Logging out...");
@@ -583,11 +583,11 @@ private static void viewAssignedCourses(Instructor instructor) {
     }
 }
 
-private static void viewAllQuizzes() {
-    System.out.println("\n--- All Quizzes ---");
-    List<Quiz> quizzes = quizService.getAllQuizzes();
+private static void viewAllQuizzes(Instructor instructor) {
+    System.out.println("\n--- My Quizzes ---");
+    List<Quiz> quizzes = quizService.getQuizzesByInstructor(instructor.getId());
     if (quizzes.isEmpty()) {
-        System.out.println("No quizzes found.");
+        System.out.println("No quizzes found for your courses.");
     } else {
         for (Quiz quiz : quizzes) {
             System.out.println("ID: " + quiz.getId() + " | Title: " + quiz.getTitle() +

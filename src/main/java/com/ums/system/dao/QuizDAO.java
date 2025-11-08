@@ -10,4 +10,5 @@ public interface QuizDAO {
     Quiz getById(int id);
     List<Quiz> getAll();
     List<Quiz> getByCourseCode(String courseCode);
+    List<Quiz> getByInstructorId(int instructorId);
 }

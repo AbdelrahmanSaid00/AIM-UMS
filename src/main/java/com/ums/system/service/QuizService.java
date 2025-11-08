@@ -10,4 +10,5 @@ public interface QuizService {
     Quiz getQuizById(int id);
     List<Quiz> getAllQuizzes();
     List<Quiz> getQuizzesByCourseCode(String courseCode);
+    List<Quiz> getQuizzesByInstructor(int instructorId);
 }

@@ -64,4 +64,10 @@ public class QuizServiceImpl implements QuizService {
     public List<Quiz> getQuizzesByCourseCode(String courseCode) {
         return quizDAO.getByCourseCode(courseCode);
     }
+
+    @Override
+    public List<Quiz> getQuizzesByInstructor(int instructorId) {
+        // Business logic: Get all quizzes for courses taught by this instructor
+        return quizDAO.getByInstructorId(instructorId);
+    }
 }

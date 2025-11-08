@@ -25,11 +25,6 @@ public class EnrollmentDAOImpl implements EnrollmentDAO {
     @Override
     public void enrollStudentInCourse(int studentId, String courseCode) {
         try {
-            // ✅ Check if student exists
-            if (!studentDAO.existsById(studentId)) {
-                System.err.println("Cannot enroll: Student with ID " + studentId + " does not exist.");
-                return;
-            }
 
             // ✅ Check if course exists
             if (!courseDAO.existsByCode(courseCode)) {
@@ -41,10 +36,6 @@ public class EnrollmentDAOImpl implements EnrollmentDAO {
             Student student = studentDAO.getById(studentId);
             Course course = courseDAO.getByCode(courseCode);
 
-            if (student == null || course == null) {
-                System.err.println("Cannot enroll: Unable to retrieve student or course details.");
-                return;
-            }
 
             // ✅ Check if student's level matches course level
             String studentLevel = String.valueOf(student.getLevel());
@@ -125,7 +116,7 @@ public class EnrollmentDAOImpl implements EnrollmentDAO {
             while (rs.next()) {
                 String courseCode = rs.getString("course_code");
                 Course course = courseDAO.getByCode(courseCode);
-                if (course != null) courses.add(course);
+                courses.add(course);
             }
         } catch (SQLException e) {
             System.err.println("Error fetching courses for student " + studentId);

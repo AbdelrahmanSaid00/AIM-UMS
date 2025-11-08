@@ -185,4 +185,32 @@ public class QuizDAOImpl implements QuizDAO {
         }
         return quizzes;
     }
+
+    @Override
+    public List<Quiz> getByInstructorId(int instructorId) {
+        List<Quiz> quizzes = new ArrayList<>();
+        String sql = "SELECT q.id, q.title, q.course_code " +
+                     "FROM quizzes q " +
+                     "JOIN courses c ON q.course_code = c.code " +
+                     "WHERE c.instructor_id = ?";
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setInt(1, instructorId);
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    int quizId = rs.getInt("id");
+                    List<Question> questions = questionDAO.getByQuizId(quizId);
+
+                    quizzes.add(new Quiz(
+                            quizId,
+                            rs.getString("title"),
+                            rs.getString("course_code"),
+                            questions
+                    ));
+                }
+            }
+        } catch (SQLException e) {
+            System.err.println("Error fetching quizzes by instructor ID: " + e.getMessage());
+        }
+        return quizzes;
+    }
 }
