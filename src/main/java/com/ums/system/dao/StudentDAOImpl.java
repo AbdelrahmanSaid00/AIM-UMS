@@ -66,7 +66,6 @@ public class StudentDAOImpl implements UserDAO<Student> {
             psStudent.setString(5, s.getDepartmentName().toString());
             psStudent.executeUpdate();
 
-            System.out.println("Student inserted successfully.");
         } catch (SQLException e) {
             e.printStackTrace();
         }
