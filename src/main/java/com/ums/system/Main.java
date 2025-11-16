@@ -117,7 +117,8 @@ private static void showAdminMenu(Admin admin) {
         System.out.println("4. Delete User");
         System.out.println("5. View All Courses");
         System.out.println("6. View All Users");
-        System.out.println("7. Logout");
+        System.out.println("7. Update Student Level");
+        System.out.println("8. Logout");
         System.out.print("Choose an option: ");
 
         String choice = scanner.nextLine().trim();
@@ -142,6 +143,9 @@ private static void showAdminMenu(Admin admin) {
                 viewAllUsers();
                 break;
             case "7":
+                updateStudentLevel();
+                break;
+            case "8":
                 System.out.println("Logging out...");
                 running = false;
                 break;
@@ -449,6 +453,65 @@ private static void deleteUser() {
         System.out.println(" Error: Invalid ID format.");
     } catch (Exception e) {
         System.out.println("Error deleting user: " + e.getMessage());
+    }
+}
+
+private static void updateStudentLevel() {
+    System.out.println("\n--- Update Student Level ---");
+    List<Student> students = studentService.getAllStudents();
+    if (students.isEmpty()) {
+        System.out.println("No students found in the system.");
+        return;
+    }
+
+    System.out.println("\n--- Available Students ---");
+    for (Student s : students) {
+        System.out.println("ID: " + s.getId() + " | Name: " + s.getName() +
+                         " | Email: " + s.getEmail() + " | Current Level: " + s.getLevel() +
+                         " | Major: " + s.getMajor() + " | Department: " + s.getDepartmentName());
+    }
+
+    System.out.print("\nEnter Student ID: ");
+    String idStr = scanner.nextLine().trim();
+
+    try {
+        int studentId = Integer.parseInt(idStr);
+
+        Student student = studentService.getStudentById(studentId);
+        if (student == null) {
+            System.out.println("Student not found with ID: " + studentId);
+            return;
+        }
+
+        System.out.println("\n--- Student Information ---");
+        System.out.println("ID: " + student.getId());
+        System.out.println("Name: " + student.getName());
+        System.out.println("Email: " + student.getEmail());
+        System.out.println("Current Level: " + student.getLevel());
+        System.out.println("Major: " + student.getMajor());
+        System.out.println("Department: " + student.getDepartmentName());
+
+        System.out.print("\nEnter New Level (1-6): ");
+        String levelStr = scanner.nextLine().trim();
+        int newLevel = Integer.parseInt(levelStr);
+
+        System.out.print("\nAre you sure you want to update the level from " +
+                        student.getLevel() + " to " + newLevel + "? (yes/no): ");
+        String confirm = scanner.nextLine().trim().toLowerCase();
+
+        if (confirm.equals("yes") || confirm.equals("y")) {
+            boolean success = adminService.updateStudentLevel(studentId, newLevel);
+            if (!success) {
+                System.out.println("Failed to update student level.");
+            }
+        } else {
+            System.out.println("Update cancelled.");
+        }
+
+    } catch (NumberFormatException e) {
+        System.out.println("Error: Invalid number format.");
+    } catch (Exception e) {
+        System.out.println("Error updating student level: " + e.getMessage());
     }
 }
 

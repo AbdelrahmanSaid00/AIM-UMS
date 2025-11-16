@@ -10,4 +10,6 @@ public interface AdminService {
     Admin getAdminById(int id);
     Admin getAdminByEmail(String email);
     List<Admin> getAllAdmins();
+
+    boolean updateStudentLevel(int studentId, int newLevel);
 }

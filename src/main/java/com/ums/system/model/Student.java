@@ -24,6 +24,10 @@ public class Student extends User{
         return level;
     }
 
+    public void setLevel(int level) {
+        this.level = level;
+    }
+
     public String getMajor() {
         return major;
     }
