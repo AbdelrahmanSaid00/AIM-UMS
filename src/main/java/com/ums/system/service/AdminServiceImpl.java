@@ -2,6 +2,7 @@ package com.ums.system.service;
 
 import com.ums.system.dao.AdminDAOImpl;
 import com.ums.system.model.Admin;
+import com.ums.system.utils.ValidationUtil;
 
 import java.sql.Connection;
 import java.util.List;
@@ -15,11 +16,23 @@ public class AdminServiceImpl implements AdminService {
 
     @Override
     public boolean addAdmin(Admin admin) {
+        if (!ValidationUtil.isValidEmail(admin.getEmail())) {
+            System.out.println("Invalid email format! Please provide a valid email address (e.g., user@example.com)");
+            return false;
+        }
+
+        if (!ValidationUtil.isValidPassword(admin.getPassword())) {
+            System.out.println("Password does not meet security requirements!");
+            System.out.println(ValidationUtil.getPasswordRequirements());
+            return false;
+        }
+
         Admin existing = adminDAO.getByEmail(admin.getEmail());
         if (existing != null) {
             System.out.println("Admin with email " + admin.getEmail() + " already exists.");
             return false;
         }
+
         adminDAO.insert(admin);
         Admin created = adminDAO.getByEmail(admin.getEmail());
         return created != null;

@@ -338,7 +338,7 @@ private static void createUser() {
                 Student student = new Student(0, name, email, password, Role.STUDENT, level, major, null, 0, studentDept, 0.0);
                 boolean studentCreated = studentService.addStudent(student);
                 if (studentCreated) {
-                    System.out.println("✅ Student created successfully!");
+                    System.out.println("Student created successfully!");
                 }
                 break;
             default:

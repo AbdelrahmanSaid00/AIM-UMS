@@ -2,6 +2,7 @@ package com.ums.system.service;
 
 import com.ums.system.dao.InstructorDAOImpl;
 import com.ums.system.model.Instructor;
+import com.ums.system.utils.ValidationUtil;
 
 import java.sql.Connection;
 import java.util.List;
@@ -15,11 +16,23 @@ public class InstructorServiceImpl implements InstructorService {
 
     @Override
     public boolean addInstructor(Instructor instructor) {
+        if (!ValidationUtil.isValidEmail(instructor.getEmail())) {
+            System.out.println("Invalid email format! Please provide a valid email address (e.g., user@example.com)");
+            return false;
+        }
+
+        if (!ValidationUtil.isValidPassword(instructor.getPassword())) {
+            System.out.println("Password does not meet security requirements!");
+            System.out.println(ValidationUtil.getPasswordRequirements());
+            return false;
+        }
+
         Instructor existing = instructorDAO.getByEmail(instructor.getEmail());
         if (existing != null) {
             System.out.println("Instructor with email " + instructor.getEmail() + " already exists.");
             return false;
         }
+
         instructorDAO.insert(instructor);
         Instructor created = instructorDAO.getByEmail(instructor.getEmail());
         return created != null;

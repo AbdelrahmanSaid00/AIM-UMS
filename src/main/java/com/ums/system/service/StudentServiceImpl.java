@@ -2,6 +2,7 @@ package com.ums.system.service;
 
 import com.ums.system.dao.StudentDAOImpl;
 import com.ums.system.model.Student;
+import com.ums.system.utils.ValidationUtil;
 
 import java.sql.Connection;
 import java.util.List;
@@ -15,11 +16,23 @@ public class StudentServiceImpl implements StudentService {
 
     @Override
     public boolean addStudent(Student student) {
-        Student existing = studentDAO.getByEmail(student.getEmail());
-        if (existing != null) {
-            System.out.println(" Student with email " + student.getEmail() + " already exists.");
+        if (!ValidationUtil.isValidEmail(student.getEmail())) {
+            System.out.println("Invalid email format! Please provide a valid email address (e.g., user@example.com)");
             return false;
         }
+
+        if (!ValidationUtil.isValidPassword(student.getPassword())) {
+            System.out.println("Password does not meet security requirements!");
+            System.out.println(ValidationUtil.getPasswordRequirements());
+            return false;
+        }
+
+        Student existing = studentDAO.getByEmail(student.getEmail());
+        if (existing != null) {
+            System.out.println("Student with email " + student.getEmail() + " already exists.");
+            return false;
+        }
+
         studentDAO.insert(student);
         Student created = studentDAO.getByEmail(student.getEmail());
         return created != null;
