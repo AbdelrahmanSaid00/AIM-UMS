@@ -16,9 +16,8 @@ public class StudentServiceImpl implements StudentService {
 
     @Override
     public boolean addStudent(Student student) {
-        // Validate email format
         if (!ValidationUtil.isValidEmail(student.getEmail())) {
-            System.out.println("❌ Invalid email format! Please provide a valid email address (e.g., user@example.com)");
+            System.out.println("Invalid email format! Please provide a valid email address (e.g., user@example.com)");
             return false;
         }
 

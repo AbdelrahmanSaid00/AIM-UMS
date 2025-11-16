@@ -71,12 +71,12 @@ public class AdminServiceImpl implements AdminService {
     public boolean updateStudentLevel(int studentId, int newLevel) {
         Student student = studentDAO.getById(studentId);
         if (student == null) {
-            System.out.println("❌ Student with ID " + studentId + " not found.");
+            System.out.println("Student with ID " + studentId + " not found.");
             return false;
         }
 
         if (newLevel < 1 || newLevel > 4) {
-            System.out.println("❌ Invalid level! Level must be between 1 and 4.");
+            System.out.println("Invalid level! Level must be between 1 and 4.");
             return false;
         }
 
