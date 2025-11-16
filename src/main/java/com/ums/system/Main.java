@@ -491,7 +491,7 @@ private static void updateStudentLevel() {
         System.out.println("Major: " + student.getMajor());
         System.out.println("Department: " + student.getDepartmentName());
 
-        System.out.print("\nEnter New Level (1-6): ");
+        System.out.print("\nEnter New Level (1-4): ");
         String levelStr = scanner.nextLine().trim();
         int newLevel = Integer.parseInt(levelStr);
 

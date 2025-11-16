@@ -16,14 +16,20 @@ public class StudentServiceImpl implements StudentService {
 
     @Override
     public boolean addStudent(Student student) {
+        // Validate email format
         if (!ValidationUtil.isValidEmail(student.getEmail())) {
-            System.out.println("Invalid email format! Please provide a valid email address (e.g., user@example.com)");
+            System.out.println("❌ Invalid email format! Please provide a valid email address (e.g., user@example.com)");
             return false;
         }
 
         if (!ValidationUtil.isValidPassword(student.getPassword())) {
             System.out.println("Password does not meet security requirements!");
             System.out.println(ValidationUtil.getPasswordRequirements());
+            return false;
+        }
+
+        if (student.getLevel() < 1 || student.getLevel() > 4) {
+            System.out.println("Invalid level! Level must be between 1 and 4.");
             return false;
         }
 
