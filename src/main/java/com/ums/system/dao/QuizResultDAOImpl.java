@@ -1,5 +1,7 @@
 package com.ums.system.dao;
 
+import com.ums.system.model.Question;
+import com.ums.system.model.Quiz;
 import com.ums.system.model.QuizResult;
 import java.sql.*;
 import java.util.ArrayList;
@@ -46,18 +48,48 @@ public class QuizResultDAOImpl implements QuizResultDAO {
     @Override
     public List<QuizResult> getByStudentId(int studentId) {
         List<QuizResult> list = new ArrayList<>();
-        String sql = "SELECT * FROM quiz_results WHERE student_id = ?";
+        String sql = "SELECT qr.*, q.title, q.course_code FROM quiz_results qr " +
+                     "JOIN quizzes q ON qr.quiz_id = q.id WHERE qr.student_id = ?";
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
             ps.setInt(1, studentId);
             try (ResultSet rs = ps.executeQuery()) {
                 while (rs.next()) {
-                    list.add(new QuizResult(null, null, rs.getInt("score"), null));
+
+                    int quizId = rs.getInt("quiz_id");
+                    List<Question> questions = createEmptyQuestionList(quizId);
+
+                    Quiz quiz = new Quiz(
+                        quizId,
+                        rs.getString("title"),
+                        rs.getString("course_code"),
+                        questions
+                    );
+                    list.add(new QuizResult(null, quiz, rs.getInt("score"), null));
                 }
             }
         } catch (SQLException e) {
             e.printStackTrace();
         }
         return list;
+    }
+
+    private List<Question> createEmptyQuestionList(int quizId) {
+        List<Question> questions = new ArrayList<>();
+        String sql = "SELECT COUNT(*) as count FROM questions WHERE quiz_id = ?";
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setInt(1, quizId);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    int count = rs.getInt("count");
+                    for (int i = 0; i < count; i++) {
+                        questions.add(new Question(0, "", new ArrayList<>(), 0));
+                    }
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return questions;
     }
 
     @Override

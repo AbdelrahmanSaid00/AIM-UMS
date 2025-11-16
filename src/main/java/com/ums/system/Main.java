@@ -3,6 +3,7 @@ package com.ums.system;
 import com.ums.system.model.*;
 import com.ums.system.service.*;
 import com.ums.system.utils.DatabaseConnection;
+import com.ums.system.utils.ReportGenerator;
 import com.ums.system.dao.*;
 
 import java.sql.Connection;
@@ -18,6 +19,7 @@ public class Main {
     private static QuizService quizService;
     private static EnrollmentDAO enrollmentDAO;
     private static QuizResultService quizResultService;
+    private static ReportGenerator reportGenerator;
 
     public static void main(String[] args) {
         System.out.println("===================================");
@@ -38,6 +40,7 @@ public class Main {
             quizService = new QuizServiceImpl(conn);
             enrollmentDAO = new EnrollmentDAOImpl(conn);
             quizResultService = new QuizResultServiceImpl(conn);
+            reportGenerator = new ReportGenerator(enrollmentDAO, quizResultService);
 
             User loggedInUser = login();
 
@@ -203,7 +206,8 @@ private static void showStudentMenu(Student student) {
         System.out.println("3. View Course Details");
         System.out.println("4. Take Quiz");
         System.out.println("5. View My Quiz Results");
-        System.out.println("6. Logout");
+        System.out.println("6. Generate Academic Report (PDF)");
+        System.out.println("7. Logout");
         System.out.print("Choose an option: ");
 
         String choice = scanner.nextLine().trim();
@@ -225,6 +229,9 @@ private static void showStudentMenu(Student student) {
                 viewMyQuizResults(student);
                 break;
             case "6":
+                generateReport(student);
+                break;
+            case "7":
                 System.out.println("Logging out...");
                 running = false;
                 break;
@@ -852,6 +859,24 @@ private static void viewMyQuizResults(Student student) {
         }
     } catch (Exception e) {
         System.out.println("Error fetching quiz results: " + e.getMessage());
+        e.printStackTrace();
+    }
+}
+
+private static void generateReport(Student student) {
+    System.out.println("\n--- Generate Academic Report ---");
+    try {
+        String filename = reportGenerator.generateStudentReport(student);
+        System.out.println("\n Report generated successfully!");
+        System.out.println("Location: " + filename);
+        System.out.println("\nThe report contains:");
+        System.out.println("  • Your personal information");
+        System.out.println("  • Overall grade and performance");
+        System.out.println("  • List of registered courses");
+        System.out.println("  • Grade for each course");
+        System.out.println("  • Quiz results summary");
+    } catch (Exception e) {
+        System.out.println("Error generating report: " + e.getMessage());
         e.printStackTrace();
     }
 }
