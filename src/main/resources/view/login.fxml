@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.Font?>
+
+<!--
+login.fxml - Login screen UI
+Clean and simple login interface
+-->
+
+<VBox xmlns="http://javafx.com/javafx/21"
+      xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="com.ums.system.controller.LoginController"
+      alignment="CENTER"
+      spacing="20"
+      style="-fx-background-color: linear-gradient(to bottom, #2193b0, #6dd5ed);">
+
+    <padding>
+        <Insets top="50" right="50" bottom="50" left="50"/>
+    </padding>
+
+    <!-- Login Card -->
+    <VBox alignment="CENTER" spacing="25" style="-fx-background-color: white; -fx-background-radius: 10; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.3), 10, 0, 0, 5);" maxWidth="350">
+        <padding>
+            <Insets top="40" right="40" bottom="40" left="40"/>
+        </padding>
+
+        <!-- Title -->
+        <VBox alignment="CENTER" spacing="5">
+            <Label text="University Management System" style="-fx-font-weight: bold; -fx-text-fill: #2193b0;">
+                <font>
+                    <Font size="18"/>
+                </font>
+            </Label>
+            <Label text="Login to continue" style="-fx-text-fill: #666666;">
+                <font>
+                    <Font size="12"/>
+                </font>
+            </Label>
+        </VBox>
+
+        <!-- Email Field -->
+        <VBox spacing="8">
+            <Label text="Email Address" style="-fx-font-weight: bold; -fx-text-fill: #333333;">
+                <font>
+                    <Font size="12"/>
+                </font>
+            </Label>
+            <TextField fx:id="emailField"
+                      promptText="Enter your email"
+                      style="-fx-background-radius: 5; -fx-border-color: #cccccc; -fx-border-radius: 5; -fx-padding: 10;">
+                <font>
+                    <Font size="13"/>
+                </font>
+            </TextField>
+        </VBox>
+
+        <!-- Password Field -->
+        <VBox spacing="8">
+            <Label text="Password" style="-fx-font-weight: bold; -fx-text-fill: #333333;">
+                <font>
+                    <Font size="12"/>
+                </font>
+            </Label>
+            <PasswordField fx:id="passwordField"
+                          promptText="Enter your password"
+                          style="-fx-background-radius: 5; -fx-border-color: #cccccc; -fx-border-radius: 5; -fx-padding: 10;">
+                <font>
+                    <Font size="13"/>
+                </font>
+            </PasswordField>
+        </VBox>
+
+        <!-- Error Label -->
+        <Label fx:id="errorLabel"
+               text=""
+               style="-fx-text-fill: red; -fx-font-size: 11px;"
+               wrapText="true"
+               maxWidth="270"/>
+
+        <!-- Login Button -->
+        <Button fx:id="loginButton"
+                text="Login"
+                onAction="#handleLogin"
+                defaultButton="true"
+                maxWidth="Infinity"
+                style="-fx-background-color: #2193b0; -fx-text-fill: white; -fx-background-radius: 5; -fx-padding: 12; -fx-cursor: hand; -fx-font-weight: bold;">
+            <font>
+                <Font size="14"/>
+            </font>
+        </Button>
+
+        <!-- Progress Indicator -->
+        <ProgressIndicator fx:id="progressIndicator"
+                          prefWidth="40"
+                          prefHeight="40"
+                          visible="false"/>
+
+        <!-- Info Text -->
+        <VBox alignment="CENTER" spacing="5" style="-fx-padding: 10 0 0 0;">
+            <Label text="Test Credentials:" style="-fx-text-fill: #666666; -fx-font-size: 10px; -fx-font-weight: bold;"/>
+            <Label text="Admin: admin@ums.edu / Student: student@ums.edu" style="-fx-text-fill: #999999; -fx-font-size: 9px;"/>
+        </VBox>
+    </VBox>
+
+    <!-- Footer -->
+    <Label text="© 2024 University Management System" style="-fx-text-fill: white; -fx-font-size: 11px;">
+        <VBox.margin>
+            <Insets top="20"/>
+        </VBox.margin>
+    </Label>
+
+</VBox>
+

@@ -1,0 +1,156 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<!--
+student.fxml - Student panel UI
+Provides tabs for viewing courses, enrolling, taking quizzes, and viewing grades
+-->
+
+<BorderPane xmlns="http://javafx.com/javafx/21"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="com.ums.system.controller.StudentController"
+            prefHeight="700" prefWidth="1000"
+            style="-fx-background-color: #f5f5f5;">
+
+    <!-- Top: Header -->
+    <top>
+        <VBox style="-fx-background-color: #4caf50;">
+            <padding>
+                <Insets top="15" right="20" bottom="15" left="20"/>
+            </padding>
+
+            <HBox alignment="CENTER_LEFT" spacing="20">
+                <Label fx:id="welcomeLabel" text="Welcome, Student!" style="-fx-text-fill: white; -fx-font-size: 20px; -fx-font-weight: bold;"/>
+                <Region HBox.hgrow="ALWAYS"/>
+                <Button text="Logout" onAction="#handleLogout" style="-fx-background-color: white; -fx-text-fill: #4caf50; -fx-font-weight: bold; -fx-padding: 8 20; -fx-cursor: hand;"/>
+            </HBox>
+
+            <Label fx:id="userInfoLabel" text="Role: Student | ID: - | Level: -" style="-fx-text-fill: white; -fx-font-size: 12px;">
+                <VBox.margin>
+                    <Insets top="5"/>
+                </VBox.margin>
+            </Label>
+        </VBox>
+    </top>
+
+    <!-- Center: Tab Pane -->
+    <center>
+        <TabPane tabClosingPolicy="UNAVAILABLE" style="-fx-padding: 10;">
+
+            <!-- AVAILABLE COURSES TAB -->
+            <Tab text="Available Courses">
+                <VBox spacing="15" style="-fx-padding: 20;">
+
+                    <Label text="Available Courses" style="-fx-font-size: 18px; -fx-font-weight: bold;"/>
+
+                    <HBox spacing="10">
+                        <Label text="Browse and enroll in available courses" style="-fx-font-size: 12px; -fx-text-fill: #666;"/>
+                        <Region HBox.hgrow="ALWAYS"/>
+                        <Button text="Refresh" onAction="#loadAvailableCourses" style="-fx-cursor: hand;"/>
+                        <Button text="Enroll in Selected" onAction="#handleEnrollCourse" style="-fx-background-color: #4caf50; -fx-text-fill: white; -fx-font-weight: bold; -fx-cursor: hand;"/>
+                    </HBox>
+
+                    <TableView fx:id="availableCoursesTable" VBox.vgrow="ALWAYS">
+                        <columns>
+                            <TableColumn fx:id="availCourseIdColumn" text="ID" prefWidth="50"/>
+                            <TableColumn fx:id="availCourseNameColumn" text="Course Name" prefWidth="400"/>
+                            <TableColumn fx:id="availCourseCodeColumn" text="Code" prefWidth="150"/>
+                            <TableColumn fx:id="availCreditsColumn" text="Credits" prefWidth="100"/>
+                        </columns>
+                    </TableView>
+                </VBox>
+            </Tab>
+
+            <!-- MY COURSES TAB -->
+            <Tab text="My Courses">
+                <VBox spacing="15" style="-fx-padding: 20;">
+
+                    <Label text="My Enrolled Courses" style="-fx-font-size: 18px; -fx-font-weight: bold;"/>
+
+                    <HBox spacing="10">
+                        <Label text="Courses you are currently enrolled in" style="-fx-font-size: 12px; -fx-text-fill: #666;"/>
+                        <Region HBox.hgrow="ALWAYS"/>
+                        <Button text="Refresh" onAction="#loadMyCourses" style="-fx-cursor: hand;"/>
+                        <Button text="Drop Selected" onAction="#handleDropCourse" style="-fx-background-color: #d32f2f; -fx-text-fill: white; -fx-cursor: hand;"/>
+                    </HBox>
+
+                    <TableView fx:id="myCoursesTable" VBox.vgrow="ALWAYS">
+                        <columns>
+                            <TableColumn fx:id="myCourseIdColumn" text="ID" prefWidth="50"/>
+                            <TableColumn fx:id="myCourseNameColumn" text="Course Name" prefWidth="400"/>
+                            <TableColumn fx:id="myCourseCodeColumn" text="Code" prefWidth="150"/>
+                            <TableColumn fx:id="myCreditsColumn" text="Credits" prefWidth="100"/>
+                        </columns>
+                    </TableView>
+                </VBox>
+            </Tab>
+
+            <!-- QUIZZES TAB -->
+            <Tab text="Quizzes">
+                <VBox spacing="15" style="-fx-padding: 20;">
+
+                    <Label text="Available Quizzes" style="-fx-font-size: 18px; -fx-font-weight: bold;"/>
+
+                    <HBox spacing="10" alignment="CENTER_LEFT">
+                        <Label text="Select Course:"/>
+                        <ComboBox fx:id="quizCourseCombo" prefWidth="300" promptText="Select a course"/>
+                        <Button text="Load Quizzes" onAction="#handleLoadQuizzes" style="-fx-background-color: #4caf50; -fx-text-fill: white; -fx-cursor: hand;"/>
+                        <Button text="View All Quizzes" onAction="#handleViewAllQuizzes" style="-fx-background-color: #2196f3; -fx-text-fill: white; -fx-cursor: hand;"/>
+                    </HBox>
+
+                    <VBox spacing="10" VBox.vgrow="ALWAYS">
+                        <HBox spacing="10">
+                            <Label text="Available Quizzes" style="-fx-font-weight: bold; -fx-font-size: 14px;"/>
+                            <Region HBox.hgrow="ALWAYS"/>
+                            <Button text="Take Selected Quiz" onAction="#handleTakeQuiz" style="-fx-background-color: #ff9800; -fx-text-fill: white; -fx-font-weight: bold; -fx-cursor: hand;"/>
+                        </HBox>
+
+                        <TableView fx:id="quizzesTable" VBox.vgrow="ALWAYS">
+                            <columns>
+                                <TableColumn fx:id="quizIdColumn" text="ID" prefWidth="50"/>
+                                <TableColumn fx:id="quizTitleColumn" text="Quiz Title" prefWidth="400"/>
+                                <TableColumn fx:id="quizCourseColumn" text="Course ID" prefWidth="100"/>
+                                <TableColumn fx:id="quizQuestionsColumn" text="Questions" prefWidth="100"/>
+                            </columns>
+                        </TableView>
+                    </VBox>
+                </VBox>
+            </Tab>
+
+            <!-- MY GRADES TAB -->
+            <Tab text="My Grades">
+                <VBox spacing="15" style="-fx-padding: 20;">
+
+                    <Label text="My Quiz Results" style="-fx-font-size: 18px; -fx-font-weight: bold;"/>
+
+                    <!-- Average Score -->
+                    <HBox spacing="10" style="-fx-background-color: white; -fx-padding: 15; -fx-background-radius: 5;">
+                        <Label fx:id="averageScoreLabel" text="Average Score: N/A" style="-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: #4caf50;"/>
+                    </HBox>
+
+                    <HBox spacing="10">
+                        <Label text="All your quiz results and grades" style="-fx-font-size: 12px; -fx-text-fill: #666;"/>
+                        <Region HBox.hgrow="ALWAYS"/>
+                        <Button text="Refresh" onAction="#loadMyGrades" style="-fx-cursor: hand;"/>
+                        <Button text="View Details" onAction="#handleViewGradeDetails" style="-fx-background-color: #2196f3; -fx-text-fill: white; -fx-cursor: hand;"/>
+                    </HBox>
+
+                    <TableView fx:id="gradesTable" VBox.vgrow="ALWAYS">
+                        <columns>
+                            <TableColumn fx:id="gradeIdColumn" text="Result ID" prefWidth="100"/>
+                            <TableColumn fx:id="gradeQuizColumn" text="Quiz ID" prefWidth="100"/>
+                            <TableColumn fx:id="gradeScoreColumn" text="Score (%)" prefWidth="100"/>
+                            <TableColumn fx:id="gradeDateColumn" text="Date Submitted" prefWidth="200"/>
+                        </columns>
+                    </TableView>
+                </VBox>
+            </Tab>
+
+        </TabPane>
+    </center>
+
+</BorderPane>
+
