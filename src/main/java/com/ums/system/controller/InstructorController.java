@@ -8,8 +8,13 @@ import com.ums.system.dao.*;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.stage.Modality;
+import javafx.stage.Stage;
 
 import java.util.List;
 import java.util.Optional;
@@ -320,26 +325,36 @@ public class InstructorController {
 
     @FXML
     private void handleCreateQuiz() {
-        String title = quizTitleField.getText().trim();
-        Course selectedCourse = quizCourseCombo.getValue();
-
-        if (title.isEmpty() || selectedCourse == null) {
-            showError("Please enter quiz title and select a course!");
-            return;
-        }
-
         try {
-            // Create quiz with constructor (id, title, courseCode, questions)
-            Quiz quiz = new Quiz(0, title, selectedCourse.getCode(), null);
+            // Load the create quiz dialog
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/view/create_quiz.fxml"));
+            Parent root = loader.load();
 
-            quizService.createQuiz(quiz, currentInstructor.getId());
-            showInfo("Quiz created successfully! You can now add questions.");
+            // Get controller and set instructor
+            CreateQuizController controller = loader.getController();
+            controller.setInstructor(currentInstructor);
 
-            quizTitleField.clear();
-            loadMyQuizzes();
+            // Create and show dialog
+            Stage dialogStage = new Stage();
+            dialogStage.setTitle("Create New Quiz");
+            dialogStage.initModality(Modality.WINDOW_MODAL);
+            dialogStage.initOwner(quizTitleField.getScene().getWindow());
+            dialogStage.setScene(new Scene(root));
+            dialogStage.setResizable(true);
+            dialogStage.setMinWidth(700);
+            dialogStage.setMinHeight(600);
+
+            // Show and wait
+            dialogStage.showAndWait();
+
+            // Refresh quiz list if quiz was created
+            if (controller.isQuizCreated()) {
+                loadMyQuizzes();
+            }
 
         } catch (Exception e) {
-            showError("Error creating quiz: " + e.getMessage());
+            e.printStackTrace();
+            showError("Error opening quiz creation dialog: " + e.getMessage());
         }
     }
 
