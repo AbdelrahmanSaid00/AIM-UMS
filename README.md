@@ -2,12 +2,13 @@
 
 # 🎓 University Management System (UMS)
 
-[![Java](https://img.shields.io/badge/Java-25-ED8B00?style=for-the-badge&logo=openjdk&logoColor=white)](https://www.oracle.com/java/)
+[![Java](https://img.shields.io/badge/Java-17-ED8B00?style=for-the-badge&logo=openjdk&logoColor=white)](https://www.oracle.com/java/)
+[![JavaFX](https://img.shields.io/badge/JavaFX-21.0.4-blue?style=for-the-badge&logo=java&logoColor=white)](https://openjfx.io/)
 [![Maven](https://img.shields.io/badge/Maven-C71A36?style=for-the-badge&logo=apache-maven&logoColor=white)](https://maven.apache.org/)
 [![MariaDB](https://img.shields.io/badge/MariaDB-003545?style=for-the-badge&logo=mariadb&logoColor=white)](https://mariadb.org/)
 [![License](https://img.shields.io/badge/License-MIT-green.svg?style=for-the-badge)](LICENSE)
 
-**A comprehensive console-based University Management System built with Java, implementing role-based access control for Admins, Instructors, and Students.**
+**A comprehensive JavaFX-based University Management System with role-based access control, payment processing, quiz management, and automated PDF report generation.**
 
 [Features](#-features) • [Architecture](#-architecture) • [Installation](#-installation) • [Usage](#-usage) • [Database](#-database-schema) • [Contributing](#-contributing)
 
@@ -32,17 +33,18 @@
 
 ## 📖 About The Project
 
-The **University Management System (UMS)** is a robust, console-based Java application designed to streamline university operations. It provides a complete solution for managing courses, students, instructors, quizzes, and enrollments with a secure role-based authentication system.
+The **University Management System (UMS)** is a modern, feature-rich JavaFX desktop application designed to streamline university operations. It provides a complete solution for managing courses, students, instructors, quizzes, payments, and enrollments with a secure role-based authentication system and an intuitive graphical user interface.
 
 ### 🎯 Key Highlights
 
-- **Role-Based Access Control**: Three distinct user roles (Admin, Instructor, Student) with specific permissions
-- **Complete CRUD Operations**: Full Create, Read, Update, and Delete functionality for all entities
-- **Quiz Management System**: Comprehensive quiz creation, administration, and result tracking
-- **Course Enrollment**: Seamless student course registration and management
-- **Secure Authentication**: Email-based login system with password protection
-- **Database-Driven**: Persistent data storage using MariaDB
-- **Modular Architecture**: Clean separation of concerns with DAO, Service, and Model layers
+- **🖥️ Modern JavaFX GUI**: Sleek, responsive desktop interface with custom CSS styling
+- **🔐 Secure Authentication**: BCrypt password encryption and role-based access control
+- **💳 Payment System**: Integrated level fee payment processing with transaction tracking
+- **📄 PDF Report Generation**: Automated student report generation using iText7
+- **📊 Quiz Management**: Comprehensive quiz creation, administration, and result tracking
+- **📚 Course Enrollment**: Seamless student course registration and management
+- **🎨 Responsive Design**: Custom CSS themes for each user role
+- **🏗️ Modular Architecture**: Clean MVC pattern with service layer and DAO implementation
 
 ---
 
@@ -50,81 +52,115 @@ The **University Management System (UMS)** is a robust, console-based Java appli
 
 ### 👨‍💼 Admin Features
 - ✅ **User Management**
-  - Create new users (Admin, Instructor, Student)
-  - Delete existing users
-  - View all users in the system
+  - Create new users (Admin, Instructor, Student) with encrypted passwords
+  - Delete existing users with cascade operations
+  - View and search all users in the system
+  - Update user information and roles
 - ✅ **Course Management**
-  - Create new courses
-  - Delete courses
-  - View all courses
-  - Assign instructors to courses
+  - Create new courses with detailed information
+  - Delete courses with enrollment handling
+  - View all courses with instructor assignments
+  - Assign and reassign instructors to courses
 - ✅ **System Administration**
   - Full access to all system resources
-  - User role assignment
+  - User role assignment and management
+  - System-wide statistics and monitoring
+- ✅ **Profile Management**
+  - View and update admin profile information
+  - Change password with encryption
 
 ### 👨‍🏫 Instructor Features
 - ✅ **Quiz Management**
-  - Create quizzes for assigned courses
-  - Add multiple-choice questions
-  - Set correct answers
+  - Create quizzes with custom titles and multiple questions
+  - Add multiple-choice questions (4 options each)
+  - Set correct answers and scoring
+  - View all created quizzes with statistics
 - ✅ **Course Access**
-  - View assigned courses
-  - View all quizzes created
+  - View assigned courses with enrollment numbers
+  - Monitor course-specific quizzes
+  - Track student performance per course
 - ✅ **Student Monitoring**
-  - Track quiz results
-  - View student performance
+  - View quiz results and statistics
+  - Track student participation and scores
+  - Generate performance reports
+- ✅ **Profile Management**
+  - View and update instructor profile
+  - View department information
+  - Change password securely
 
 ### 👨‍🎓 Student Features
 - ✅ **Course Registration**
-  - Register for available courses
-  - View enrolled courses
-  - View course details (instructor, schedule)
+  - Browse available courses by level and major
+  - Register for courses (up to 6 per semester)
+  - View enrolled courses with instructor details
+  - Unregister from courses when needed
 - ✅ **Quiz Participation**
   - Take quizzes for enrolled courses
-  - View quiz results immediately
-  - Track quiz history
+  - Interactive quiz interface with timer display
+  - View quiz results immediately after submission
+  - Review detailed quiz answers and explanations
+  - Track quiz history and performance
+- ✅ **Payment System**
+  - View level fee requirements
+  - Pay level fees online with multiple payment methods
+  - Track payment history with transaction IDs
+  - View payment status (Paid/Pending/Failed)
 - ✅ **Academic Progress**
-  - View grades and scores
+  - View grades and average scores
   - Monitor course enrollment status
+  - Generate and download PDF student reports
+  - Track completed quizzes and performance metrics
+- ✅ **Profile Management**
+  - View personal information and student details
+  - Update profile information
+  - Change password with validation
+  - View academic level and major
 
 ---
 
 ## 🏗️ Architecture
 
-This project follows a **layered architecture** pattern with clear separation of concerns:
+This project follows a **Model-View-Controller (MVC)** architecture with a service layer:
 
 ```
-┌─────────────────────────────────────┐
-│     Presentation Layer (Main)       │  ← User Interface (Console)
-└────────────────┬────────────────────┘
+┌─────────────────────────────────────────────────┐
+│     Presentation Layer (JavaFX FXML Views)      │  ← User Interface
+│        (Login, Admin, Instructor, Student)       │
+└────────────────┬────────────────────────────────┘
                  │
-┌────────────────▼────────────────────┐
-│        Service Layer                │  ← Business Logic
-│  (AdminService, CourseService, etc) │
-└────────────────┬────────────────────┘
+┌────────────────▼────────────────────────────────┐
+│         Controller Layer (JavaFX)               │  ← Event Handling
+│  (LoginController, AdminController, etc.)        │
+└────────────────┬────────────────────────────────┘
                  │
-┌────────────────▼────────────────────┐
-│         DAO Layer                   │  ← Data Access
-│  (AdminDAO, CourseDAO, etc)         │
-└────────────────┬────────────────────┘
+┌────────────────▼────────────────────────────────┐
+│           Service Layer                         │  ← Business Logic
+│  (AdminService, CourseService, PaymentService)  │
+└────────────────┬────────────────────────────────┘
                  │
-┌────────────────▼────────────────────┐
-│         Model Layer                 │  ← Domain Entities
-│  (User, Course, Quiz, etc)          │
-└────────────────┬────────────────────┘
+┌────────────────▼────────────────────────────────┐
+│             DAO Layer                           │  ← Data Access
+│  (AdminDAO, CourseDAO, PaymentDAO, etc.)        │
+└────────────────┬────────────────────────────────┘
                  │
-┌────────────────▼────────────────────┐
-│       Database (MariaDB)            │  ← Data Persistence
-└─────────────────────────────────────┘
+┌────────────────▼────────────────────────────────┐
+│           Model Layer                           │  ← Domain Entities
+│  (User, Course, Quiz, Payment, etc.)            │
+└────────────────┬────────────────────────────────┘
+                 │
+┌────────────────▼────────────────────────────────┐
+│         Database (MariaDB)                      │  ← Data Persistence
+└─────────────────────────────────────────────────┘
 ```
 
 ### Design Patterns Used
 
+- **MVC (Model-View-Controller)**: Separates UI, business logic, and data
 - **DAO (Data Access Object)**: Abstracts database operations
-- **Singleton Pattern**: DatabaseConnection class ensures single DB connection
-- **Service Layer Pattern**: Encapsulates business logic
-- **Inheritance**: User class extended by Admin, Instructor, and Student
-- **Enum Pattern**: Role and Department enumerations
+- **Singleton Pattern**: DatabaseConnection and ServiceLocator ensure single instances
+- **Service Layer Pattern**: Encapsulates business logic and transaction management
+- **Factory Pattern**: User creation with role-specific implementations
+- **Observer Pattern**: JavaFX property binding for reactive UI updates
 
 ---
 
@@ -132,10 +168,13 @@ This project follows a **layered architecture** pattern with clear separation of
 
 | Technology | Purpose | Version |
 |------------|---------|---------|
-| ![Java](https://img.shields.io/badge/Java-ED8B00?style=flat&logo=openjdk&logoColor=white) | Core Programming Language | 25 |
+| ![Java](https://img.shields.io/badge/Java-ED8B00?style=flat&logo=openjdk&logoColor=white) | Core Programming Language | 17 |
+| ![JavaFX](https://img.shields.io/badge/JavaFX-blue?style=flat&logo=java&logoColor=white) | GUI Framework | 21.0.4 |
 | ![Maven](https://img.shields.io/badge/Maven-C71A36?style=flat&logo=apache-maven&logoColor=white) | Build & Dependency Management | 4.0.0 |
 | ![MariaDB](https://img.shields.io/badge/MariaDB-003545?style=flat&logo=mariadb&logoColor=white) | Database Management System | Latest |
 | ![JDBC](https://img.shields.io/badge/JDBC-007396?style=flat&logo=java&logoColor=white) | Database Connectivity | MariaDB Connector 3.3.0 |
+| ![iText7](https://img.shields.io/badge/iText7-red?style=flat) | PDF Report Generation | 7.2.5 |
+| ![BCrypt](https://img.shields.io/badge/BCrypt-green?style=flat) | Password Encryption | 0.10.2 |
 | ![Dotenv](https://img.shields.io/badge/Dotenv-3.0.0-green?style=flat) | Environment Configuration | 3.0.0 |
 
 ---
@@ -146,7 +185,7 @@ This project follows a **layered architecture** pattern with clear separation of
 
 Before you begin, ensure you have the following installed:
 
-- ☑️ **Java JDK 25** or higher ([Download](https://www.oracle.com/java/technologies/downloads/))
+- ☑️ **Java JDK 17** or higher ([Download](https://www.oracle.com/java/technologies/downloads/))
 - ☑️ **Apache Maven** ([Download](https://maven.apache.org/download.cgi))
 - ☑️ **MariaDB** or **MySQL** ([Download](https://mariadb.org/download/))
 - ☑️ **Git** ([Download](https://git-scm.com/downloads))
@@ -155,7 +194,7 @@ Before you begin, ensure you have the following installed:
 
 1. **Clone the Repository**
    ```bash
-   git clone https://github.com/yourusername/AIM-UMS.git
+   git clone https://github.com/MaroWael/AIM-UMS.git
    cd AIM-UMS
    ```
 
@@ -164,8 +203,10 @@ Before you begin, ensure you have the following installed:
    # Login to MariaDB
    mysql -u root -p
    
-   # Execute the SQL script
+   # Execute the SQL scripts
    source ums.sql
+   source payment_schema.sql
+   source mock_data.sql
    ```
 
 3. **Configure Database Connection**
@@ -183,11 +224,18 @@ Before you begin, ensure you have the following installed:
    ```
 
 5. **Run the Application**
+   
+   **Option 1: Using Maven JavaFX Plugin (Recommended)**
    ```bash
-   mvn exec:java -Dexec.mainClass="com.ums.system.Main"
+   mvn javafx:run
    ```
    
-   Or run the compiled JAR:
+   **Option 2: Using the Launcher**
+   ```bash
+   mvn exec:java -Dexec.mainClass="com.ums.system.Launcher"
+   ```
+   
+   **Option 3: Run the compiled JAR**
    ```bash
    java -jar target/UMS-1.0-SNAPSHOT.jar
    ```
@@ -198,17 +246,7 @@ Before you begin, ensure you have the following installed:
 
 ### Login System
 
-When you start the application, you'll be greeted with a login screen:
-
-```
-===================================
-Welcome to University Management System
-===================================
-
---- Login ---
-Email: admin@ums.com
-Password: ********
-```
+When you start the application, you'll be greeted with a modern JavaFX login screen with the university logo and a clean interface.
 
 ### Default Users
 
@@ -220,59 +258,77 @@ The system comes with pre-configured users for testing:
 | Instructor | instructor@ums.com | inst123 | Course & Quiz Management |
 | Student | student@ums.com | stud123 | Course Registration & Quizzes |
 
-### Admin Workflow Example
+### Admin Dashboard
 
-```
-========== ADMIN MENU ==========
-1. Create Course
-2. Delete Course
-3. Create User
-4. Delete User
-5. View All Courses
-6. View All Users
-7. Logout
+The admin dashboard provides:
+- **User Management Tab**: Create, view, and delete users
+- **Course Management Tab**: Create, view, and delete courses
+- **Statistics Overview**: System-wide metrics and summaries
+- **Profile Tab**: View and update admin information
 
-Choose an option: 1
-Enter course code: CS101
-Enter course name: Introduction to Programming
-Enter level: 1
-Enter major: Computer Science
-Enter lecture time: Mon/Wed 10:00-11:30
-Enter instructor ID: 2
-Course created successfully!
-```
+### Instructor Dashboard
 
-### Instructor Workflow Example
+The instructor interface includes:
+- **My Courses Tab**: View assigned courses and enrolled students
+- **Quiz Management Tab**: Create and manage quizzes
+- **Results Tab**: View student quiz results and performance
+- **Profile Tab**: Update personal information
 
-```
-========== INSTRUCTOR MENU ==========
-1. Create Quiz
-2. View Assigned Courses
-3. View All Quizzes
-4. Logout
+### Student Dashboard
 
-Choose an option: 1
-Enter quiz title: Java Basics Quiz
-Enter course code: CS101
-How many questions? 5
-[Questions entry process...]
-Quiz created successfully!
-```
+The student portal features:
+- **Available Courses Tab**: Browse and register for courses
+- **My Courses Tab**: View enrolled courses and details
+- **Quizzes Tab**: Take quizzes for enrolled courses
+- **Grades Tab**: View quiz results and average scores
+- **Payments Tab**: Pay level fees and view payment history
+- **Profile Tab**: View student information and generate reports
 
-### Student Workflow Example
+### Payment System
 
-```
-========== STUDENT MENU ==========
-1. Register for Course
-2. View My Courses
-3. View Course Details
-4. Take Quiz
-5. Logout
+Students can:
+1. View their current level fee requirement
+2. Check payment status (Paid/Pending)
+3. Pay using multiple payment methods (Card, Cash, Bank Transfer)
+4. View complete payment history with transaction IDs
+5. Download payment receipts
 
-Choose an option: 1
-Enter course code to register: CS101
-Successfully registered for CS101!
-```
+**Level Fee Structure:**
+- Level 1 (Freshman): 15,000.00 EGP
+- Level 2 (Sophomore): 17,500.00 EGP
+- Level 3 (Junior): 20,000.00 EGP
+- Level 4 (Senior): 22,500.00 EGP
+
+### Quiz System
+
+**For Instructors:**
+1. Navigate to "Create Quiz" tab
+2. Enter quiz title and select course
+3. Add questions with 4 multiple-choice options
+4. Mark the correct answer for each question
+5. Submit to make quiz available to students
+
+**For Students:**
+1. Go to "Quizzes" tab
+2. Select a course from enrolled courses
+3. Choose an available quiz
+4. Click "Take Quiz" to start
+5. Answer all questions and submit
+6. View results immediately with detailed feedback
+
+### PDF Report Generation
+
+Students can generate comprehensive academic reports:
+1. Click "View Profile" in the student dashboard
+2. Click "Generate PDF Report" button
+3. PDF includes:
+   - Personal information and student ID
+   - Enrolled courses with instructors
+   - Quiz results and scores
+   - Payment history and status
+   - University branding and logo
+
+Reports are saved in the `reports/` directory with timestamps.
 
 ---
 
@@ -287,7 +343,7 @@ Successfully registered for CS101!
                               │ id (PK)          │
                               │ name             │
                               │ email (UNIQUE)   │
-                              │ password         │
+                              │ password (HASH)  │
                               │ role (ENUM)      │
                               └────────┬─────────┘
                                        │
@@ -302,70 +358,86 @@ Successfully registered for CS101!
          │ major            │ └──────┬───────┘
          │ grade            │        │
          │ department       │        │ instructor_id (FK)
-         └────────┬─────────┘        │
-                  │                  ▼
-                  │         ┌──────────────────┐
-                  │         │     COURSES      │
-                  │         ├──────────────────┤
-                  │         │ code (PK)        │
-                  │         │ course_name      │
-                  │         │ level            │
-                  │         │ major            │
-                  │         │ lecture_time     │
-                  │         │ instructor_id(FK)│
-                  │         └────────┬─────────┘
-                  │                  │
-                  │         ┌────────┼────────┐
-                  │         │                 │
-                  │         │ course_code(FK) │
-                  │         │                 │
-                  │         ▼                 ▼
-         ┌────────▼──────────────┐   ┌──────────────────┐
-         │  STUDENT_COURSES      │   │     QUIZZES      │
-         │  (Junction Table)     │   ├──────────────────┤
-         ├───────────────────────┤   │ id (PK)          │
-         │ student_id (PK,FK)    │   │ title            │
-         │ course_code (PK,FK)   │   │ course_code (FK) │
-         └───────────────────────┘   └────────┬─────────┘
-                                              │
-                                              │ quiz_id (FK)
-                                     ┌────────┼────────┐
-                                     │                 │
-                                     ▼                 ▼
-                            ┌──────────────┐  ┌──────────────────┐
-                            │  QUESTIONS   │  │  QUIZ_RESULTS    │
-                            ├──────────────┤  ├──────────────────┤
-                            │ id (PK)      │  │ id (PK)          │
-                            │ quiz_id (FK) │  │ student_id (FK)  │
-                            │ text         │  │ quiz_id (FK)     │
-                            │ option1      │  │ score            │
-                            │ option2      │  └────────┬─────────┘
-                            │ option3      │           │
-                            │ option4      │           │ result_id (FK)
-                            │ correct_opt  │           │
-                            └──────┬───────┘           │
-                                   │                   │
-                                   │ question_id (FK)  │
-                                   │                   │
-                                   └────────┬──────────┘
-                                            │
-                                            ▼
-                                   ┌──────────────────┐
-                                   │  QUIZ_ANSWERS    │
-                                   ├──────────────────┤
-                                   │ id (PK)          │
-                                   │ result_id (FK)   │
-                                   │ question_id (FK) │
-                                   │ chosen_answer    │
-                                   └──────────────────┘
+         └──┬───────────┬───┘        │
+            │           │            ▼
+            │           │   ┌──────────────────┐
+            │           │   │     COURSES      │
+            │           │   ├──────────────────┤
+            │           │   │ code (PK)        │
+            │           │   │ course_name      │
+            │           │   │ level            │
+            │           │   │ major            │
+            │           │   │ lecture_time     │
+            │           │   │ instructor_id(FK)│
+            │           │   └────────┬─────────┘
+            │           │            │
+            │           │   ┌────────┼────────────────┐
+            │           │   │                         │
+            │           │   │ course_code(FK)         │
+            │           │   │                         │
+            │           │   ▼                         ▼
+            │           │ ┌──────────────────┐   ┌──────────────────┐
+            │           │ │ STUDENT_COURSES  │   │     QUIZZES      │
+            │           │ │ (Junction Table) │   ├──────────────────┤
+            │           │ ├──────────────────┤   │ id (PK)          │
+            │           └─┤student_id(PK,FK) │   │ title            │
+            │             │course_code(PK,FK)│   │ course_code (FK) │
+            │             └──────────────────┘   └────────┬─────────┘
+            │                                             │
+            │                                             │ quiz_id (FK)
+            │                                    ┌────────┼────────┐
+            │                                    │                 │
+            │                                    ▼                 ▼
+            │                           ┌──────────────┐  ┌──────────────────┐
+            │                           │  QUESTIONS   │  │  QUIZ_RESULTS    │
+            │                           ├──────────────┤  ├──────────────────┤
+            │                           │ id (PK)      │  │ id (PK)          │
+            │                           │ quiz_id (FK) │  │ student_id (FK)  │
+            │                           │ text         │  │ quiz_id (FK)     │
+            │                           │ option1      │  │ score            │
+            │                           │ option2      │  └────────┬─────────┘
+            │                           │ option3      │           │
+            │                           │ option4      │           │ result_id (FK)
+            │                           │ correct_opt  │           │
+            │                           └──────┬───────┘           │
+            │                                  │                   │
+            │                                  │ question_id (FK)  │
+            │                                  │                   │
+            │                                  └────────┬──────────┘
+            │                                           │
+            │                                           ▼
+            │                                  ┌──────────────────┐
+            │                                  │  QUIZ_ANSWERS    │
+            │                                  ├──────────────────┤
+            │                                  │ id (PK)          │
+            │                                  │ result_id (FK)   │
+            │                                  │ question_id (FK) │
+            │                                  │ chosen_answer    │
+            │                                  └──────────────────┘
+            │
+            │ student_id (FK)
+            │
+            ▼
+   ┌──────────────────┐
+   │     PAYMENTS     │
+   ├──────────────────┤
+   │ id (PK)          │
+   │ student_id (FK)  │
+   │ level            │
+   │ amount           │
+   │ payment_method   │
+   │ transaction_id   │
+   │ status           │
+   │ payment_date     │
+   └──────────────────┘
 ```
 
 ### Key Tables
 
-#### 1. **users** - Core user information
+#### 1. **users** - Core user information with encrypted passwords
 ```sql
 - id (Primary Key)
-- name, email, password
+- name, email, password (BCrypt hashed)
 - role (ADMIN, STUDENT, INSTRUCTOR)
 ```
 
@@ -397,19 +469,19 @@ Successfully registered for CS101!
 - course_code (Foreign Key → courses)
 ```
 
-#### 6. **questions** - Quiz questions
+#### 6. **questions** - Quiz questions with multiple-choice options
 ```sql
 - id (Primary Key)
 - quiz_id (Foreign Key → quizzes)
 - text, option1-4
-- correct_option_index
+- correct_option_index (0-3)
 ```
 
 #### 7. **quiz_results** - Student quiz scores
 ```sql
 - id (Primary Key)
 - student_id, quiz_id (Foreign Keys)
-- score
+- score (number correct)
 ```
 
 #### 8. **student_courses** - Junction table for student enrollments
@@ -423,54 +495,20 @@ Successfully registered for CS101!
 - id (Primary Key)
 - result_id (Foreign Key → quiz_results)
 - question_id (Foreign Key → questions)
-- chosen_answer
+- chosen_answer (0-3)
 ```
 
----
-
-### Database Relationships Explained
-
-#### **Core Relationships:**
-
-1. **User Inheritance Hierarchy**
-   - `users` table is the parent table
-   - `students`, `instructors`, and `admins` extend users via `user_id` foreign key
-   - One-to-One relationship (inheritance pattern)
-   - Cascade delete: Deleting a user removes their role-specific data
-
-2. **Course-Instructor Relationship**
-   - `courses.instructor_id` → `users.id` (One-to-Many)
-   - One instructor can teach multiple courses
-   - SET NULL on delete: Course remains if instructor is deleted
-
-3. **Student-Course Enrollment (Many-to-Many)**
-   - `student_courses` junction table connects students and courses
-   - `student_courses.student_id` → `students.user_id`
-   - `student_courses.course_code` → `courses.code`
-   - Allows students to register for multiple courses
-   - Cascade delete: Enrollment removed if student or course is deleted
-
-4. **Course-Quiz Relationship (One-to-Many)**
-   - `quizzes.course_code` → `courses.code`
-   - One course can have multiple quizzes
-   - Cascade delete: Quizzes deleted when course is removed
-
-5. **Quiz-Question Relationship (One-to-Many)**
-   - `questions.quiz_id` → `quizzes.id`
-   - One quiz contains multiple questions
-   - Cascade delete: Questions deleted when quiz is removed
-
-6. **Quiz Results (Many-to-Many with attributes)**
-   - `quiz_results` links students and quizzes with score
-   - `quiz_results.student_id` → `students.user_id`
-   - `quiz_results.quiz_id` → `quizzes.id`
-   - Tracks which student took which quiz and their score
-
-7. **Quiz Answers Tracking**
-   - `quiz_answers` stores individual question responses
-   - `quiz_answers.result_id` → `quiz_results.id`
-   - `quiz_answers.question_id` → `questions.id`
-   - Records each answer a student gave in a quiz attempt
+#### 10. **payments** - Level fee payment tracking (NEW)
+```sql
+- id (Primary Key)
+- student_id (Foreign Key → students)
+- level (1-4)
+- amount (decimal)
+- payment_method (ENUM)
+- transaction_id (UNIQUE)
+- status (ENUM: PENDING, COMPLETED, FAILED)
+- payment_date (TIMESTAMP)
+```
 
 ---
 
@@ -480,9 +518,23 @@ Successfully registered for CS101!
 AIM-UMS/
 │
 ├── src/main/java/com/ums/system/
-│   ├── Main.java                      # Application entry point
+│   ├── App.java                       # JavaFX Application entry point
+│   ├── Launcher.java                  # Main launcher class
+│   ├── Main.java                      # Legacy console interface
+│   ├── PaymentSystemDemo.java         # Payment system demonstration
 │   │
-│   ├── model/                         # Domain models
+│   ├── controller/                    # JavaFX Controllers (MVC)
+│   │   ├── LoginController.java       # Login screen controller
+│   │   ├── AdminController.java       # Admin dashboard controller
+│   │   ├── InstructorController.java  # Instructor dashboard controller
+│   │   ├── StudentController.java     # Student dashboard controller
+│   │   ├── ProfileController.java     # Profile view controller
+│   │   ├── CreateQuizController.java  # Quiz creation controller
+│   │   ├── TakeQuizController.java    # Quiz taking controller
+│   │   ├── QuizResultDetailController.java  # Quiz results controller
+│   │   └── StudentDetailsController.java    # Student details controller
+│   │
+│   ├── model/                         # Domain models (Entities)
 │   │   ├── User.java                  # Base user class
 │   │   ├── Admin.java                 # Admin entity
 │   │   ├── Instructor.java            # Instructor entity
@@ -491,6 +543,9 @@ AIM-UMS/
 │   │   ├── Quiz.java                  # Quiz entity
 │   │   ├── Question.java              # Question entity
 │   │   ├── QuizResult.java            # Quiz result entity
+│   │   ├── Payment.java               # Payment entity (NEW)
+│   │   ├── PaymentRequest.java        # Payment request DTO (NEW)
+│   │   ├── PaymentResult.java         # Payment result DTO (NEW)
 │   │   ├── Role.java                  # Role enumeration
 │   │   └── Department.java            # Department enumeration
 │   │
@@ -508,7 +563,9 @@ AIM-UMS/
 │   │   ├── QuizResultDAO.java         # Quiz result DAO interface
 │   │   ├── QuizResultDAOImpl.java     # Quiz result DAO implementation
 │   │   ├── EnrollmentDAO.java         # Enrollment DAO interface
-│   │   └── EnrollmentDAOImpl.java     # Enrollment DAO implementation
+│   │   ├── EnrollmentDAOImpl.java     # Enrollment DAO implementation
+│   │   ├── PaymentDAO.java            # Payment DAO interface (NEW)
+│   │   └── PaymentDAOImpl.java        # Payment DAO implementation (NEW)
 │   │
 │   ├── service/                       # Business logic layer
 │   │   ├── AdminService.java          # Admin service interface
@@ -522,15 +579,51 @@ AIM-UMS/
 │   │   ├── QuizService.java           # Quiz service interface
 │   │   ├── QuizServiceImpl.java       # Quiz service implementation
 │   │   ├── QuizResultService.java     # Quiz result service interface
-│   │   └── QuizResultServiceImpl.java # Quiz result service implementation
+│   │   ├── QuizResultServiceImpl.java # Quiz result service implementation
+│   │   ├── PaymentService.java        # Payment service interface (NEW)
+│   │   ├── PaymentServiceImpl.java    # Payment service implementation (NEW)
+│   │   └── QuestionService.java       # Question service interface (NEW)
 │   │
-│   └── utils/                         # Utility classes
-│       └── DatabaseConnection.java    # Database connection singleton
+│   ├── util/                          # Utility classes
+│   │   └── ServiceLocator.java        # Service locator pattern (NEW)
+│   │
+│   └── utils/                         # Additional utilities
+│       ├── DatabaseConnection.java    # Database connection singleton
+│       └── ReportGenerator.java       # PDF report generator (NEW)
 │
+├── src/main/resources/
+│   ├── assets/
+│   │   └── Ain_Shams_logo.png        # University logo
+│   │
+│   └── view/                          # JavaFX FXML views
+│       ├── login.fxml                 # Login screen
+│       ├── login.css                  # Login styles
+│       ├── admin.fxml                 # Admin dashboard
+│       ├── admin.css                  # Admin styles
+│       ├── instructor.fxml            # Instructor dashboard
+│       ├── instructor.css             # Instructor styles
+│       ├── student.fxml               # Student dashboard
+│       ├── student.css                # Student styles
+│       ├── profile.fxml               # Profile view
+│       ├── profile.css                # Profile styles
+│       ├── create_quiz.fxml           # Quiz creation form
+│       ├── create_quiz.css            # Quiz creation styles
+│       ├── take_quiz.fxml             # Quiz taking interface
+│       ├── take_quiz.css              # Quiz taking styles
+│       ├── quiz_result_detail.fxml    # Quiz results view
+│       ├── quiz_result_detail.css     # Quiz results styles
+│       ├── student_details.fxml       # Student details view
+│       └── student_details.css        # Student details styles
+│
+├── reports/                           # Generated PDF reports (NEW)
 ├── target/                            # Compiled classes
 ├── pom.xml                            # Maven configuration
 ├── ums.sql                            # Database schema script
+├── payment_schema.sql                 # Payment system schema (NEW)
+├── mock_data.sql                      # Sample data script
 ├── .env                               # Environment variables (create this)
+├── FinalUML(AIM).pdf                  # UML documentation
+├── UML.drawio                         # UML source file
 ├── LICENSE                            # Project license
 └── README.md                          # Project documentation
 ```
@@ -539,29 +632,41 @@ AIM-UMS/
 
 ## 🎨 Key Components
 
-### 1. **Model Layer** (`model/`)
+### 1. **JavaFX Views** (`resources/view/`)
+- FXML files for declarative UI layout
+- Custom CSS styling for each role
+- Responsive design with TableViews, ComboBoxes, and Forms
+- Modern UI with Ain Shams University branding
+
+### 2. **Controllers** (`controller/`)
+- Handle user interactions and events
+- Bind UI components to data models
+- Validate user input
+- Navigate between screens
+
+### 3. **Model Layer** (`model/`)
 - Contains all entity classes representing database tables
 - Implements inheritance hierarchy (User → Admin/Instructor/Student)
-- Includes `toString()` methods for debugging
+- Includes DTOs for data transfer (PaymentRequest, PaymentResult)
+- JavaFX properties for reactive UI binding
 
-### 2. **DAO Layer** (`dao/`)
-- Handles all database operations
-- Implements CRUD operations for each entity
+### 4. **DAO Layer** (`dao/`)
+- Handles all database operations with CRUD methods
 - Uses PreparedStatements to prevent SQL injection
+- Transaction management for complex operations
+- Connection pooling support
 
-### 3. **Service Layer** (`service/`)
-- Contains business logic
-- Acts as intermediary between presentation and DAO layers
-- Implements validation and error handling
+### 5. **Service Layer** (`service/`)
+- Contains business logic and validation
+- Acts as intermediary between controllers and DAOs
+- Implements transaction boundaries
+- Handles error handling and logging
 
-### 4. **Utils** (`utils/`)
+### 6. **Utils** (`utils/`)
 - `DatabaseConnection`: Singleton pattern for DB connection management
-- Loads credentials from `.env` file
-
-### 5. **Main Application** (`Main.java`)
-- Console-based user interface
-- Role-based menu system
-- Authentication and session management
+- `ReportGenerator`: PDF generation using iText7
+- `ServiceLocator`: Centralized service management (NEW)
+- Loads credentials from `.env` file securely
 
 ---
 
@@ -583,6 +688,18 @@ Key dependencies in `pom.xml`:
 
 ```xml
 <dependencies>
+    <!-- JavaFX -->
+    <dependency>
+        <groupId>org.openjfx</groupId>
+        <artifactId>javafx-controls</artifactId>
+        <version>21.0.4</version>
+    </dependency>
+    <dependency>
+        <groupId>org.openjfx</groupId>
+        <artifactId>javafx-fxml</artifactId>
+        <version>21.0.4</version>
+    </dependency>
+    
     <!-- MariaDB JDBC Driver -->
     <dependency>
         <groupId>org.mariadb.jdbc</groupId>
@@ -590,11 +707,19 @@ Key dependencies in `pom.xml`:
         <version>3.3.0</version>
     </dependency>
     
-    <!-- SLF4J Logging -->
+    <!-- BCrypt for Password Encryption -->
     <dependency>
-        <groupId>org.slf4j</groupId>
-        <artifactId>slf4j-simple</artifactId>
-        <version>2.0.9</version>
+        <groupId>at.favre.lib</groupId>
+        <artifactId>bcrypt</artifactId>
+        <version>0.10.2</version>
+    </dependency>
+    
+    <!-- iText7 for PDF Generation -->
+    <dependency>
+        <groupId>com.itextpdf</groupId>
+        <artifactId>itext7-core</artifactId>
+        <version>7.2.5</version>
+        <type>pom</type>
     </dependency>
     
     <!-- Dotenv for environment variables -->
@@ -631,31 +756,38 @@ Contributions are what make the open-source community such an amazing place to l
 
 ### Coding Standards
 
-- Follow Java naming conventions
+- Follow Java naming conventions and best practices
 - Write meaningful commit messages
 - Add comments for complex logic
 - Update documentation for new features
 - Write unit tests where applicable
+- Follow the existing code structure and patterns
+- Use proper exception handling
 
 ---
 
 ## 🐛 Known Issues & Future Enhancements
 
 ### Current Limitations
-- Console-based interface only (no GUI)
-- Plain text password storage (needs encryption)
-- No email verification system
-- Limited input validation
+- No email verification system for new users
+- Limited payment gateway integration (demo mode)
+- Quiz timer is display-only (not enforced)
+- No real-time notifications
 
 ### Planned Features
-- 🔐 Password encryption (BCrypt)
-- 📧 Email notification system
-- 📊 Graphical reports and analytics
-- 🖥️ JavaFX/Swing GUI interface
-- 📱 RESTful API for mobile integration
-- 🔍 Advanced search and filtering
+- 🔔 Real-time notifications system
+- 📧 Email verification and notifications
+- 💳 Integration with real payment gateways (Stripe, PayPal)
+- 📊 Advanced analytics dashboard
 - 📅 Academic calendar integration
 - 💬 Messaging system between users
+- 🔍 Advanced search and filtering
+- 📱 Mobile application (Android/iOS)
+- 🌐 Web-based interface
+- 🔄 Automatic grade calculation
+- 📈 Performance analytics and charts
+- 🎯 Attendance tracking system
+- 📚 Digital library integration
 
 ---
 
@@ -671,25 +803,17 @@ Distributed under the MIT License. See `LICENSE` file for more information.
 - **Islam Ali** - [@IslamAli-0](https://github.com/IslamAli-0)
 - **Abdulrahman Saeed** - [@AbdelrahmanSaid00](https://github.com/AbdelrahmanSaid00)
 
-Project Link: [https://github.com/MaroWael/AIM-UMS](https://github.com/yourusername/AIM-UMS)
+Project Link: [https://github.com/MaroWael/AIM-UMS](https://github.com/MaroWael/AIM-UMS)
 
 ---
 
-## 🙏 Acknowledgments
 
-- [Maven](https://maven.apache.org/) - Dependency Management
-- [MariaDB](https://mariadb.org/) - Database System
-- [Java](https://www.oracle.com/java/) - Programming Language
-- [Shields.io](https://shields.io/) - README Badges
-- [Choose an Open Source License](https://choosealicense.com) - License Information
-
----
 
 <div align="center">
 
 ### ⭐ If you find this project useful, please consider giving it a star!
 
-**Made with ❤️ and ☕**
+**Made with ❤️ and ☕ by the AIM Team**
 
 [⬆ Back to Top](#-university-management-system-ums)
 
