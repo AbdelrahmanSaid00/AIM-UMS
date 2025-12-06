@@ -343,3 +343,85 @@
     -fx-alignment: CENTER_LEFT;
 }
 
+/* Dashboard Statistics Cards */
+.dashboard-stats-container {
+    -fx-background-color: transparent;
+}
+
+.dashboard-title {
+    -fx-font-size: 18px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #1976d2;
+    -fx-padding: 0 0 10 0;
+}
+
+/* Stat Card Color Variants - Combined classes like admin revenue cards */
+.stat-card-blue,
+.stat-card-green,
+.stat-card-orange,
+.stat-card-purple {
+    -fx-padding: 25;
+    -fx-background-radius: 12;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.15), 10, 0, 0, 3);
+    -fx-min-height: 150;
+    -fx-pref-height: 150;
+    -fx-alignment: CENTER;
+}
+
+.stat-card-blue {
+    -fx-background-color: linear-gradient(to bottom right, #2196f3, #1976d2);
+}
+
+.stat-card-blue:hover {
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.25), 15, 0, 0, 5);
+    -fx-scale-x: 1.02;
+    -fx-scale-y: 1.02;
+}
+
+.stat-card-green {
+    -fx-background-color: linear-gradient(to bottom right, #66bb6a, #43a047);
+}
+
+.stat-card-green:hover {
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.25), 15, 0, 0, 5);
+    -fx-scale-x: 1.02;
+    -fx-scale-y: 1.02;
+}
+
+.stat-card-orange {
+    -fx-background-color: linear-gradient(to bottom right, #ffa726, #fb8c00);
+}
+
+.stat-card-orange:hover {
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.25), 15, 0, 0, 5);
+    -fx-scale-x: 1.02;
+    -fx-scale-y: 1.02;
+}
+
+.stat-card-purple {
+    -fx-background-color: linear-gradient(to bottom right, #ab47bc, #8e24aa);
+}
+
+.stat-card-purple:hover {
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.25), 15, 0, 0, 5);
+    -fx-scale-x: 1.02;
+    -fx-scale-y: 1.02;
+}
+
+/* Stat Card Elements */
+.stat-icon {
+    -fx-font-size: 36px;
+    -fx-text-fill: white;
+}
+
+.stat-value {
+    -fx-font-size: 32px;
+    -fx-font-weight: bold;
+    -fx-text-fill: white;
+}
+
+.stat-label {
+    -fx-font-size: 14px;
+    -fx-text-fill: rgba(255,255,255,0.95);
+    -fx-font-weight: 500;
+}

@@ -25,6 +25,12 @@ public class StudentController {
     @FXML private Label welcomeLabel;
     @FXML private Label userInfoLabel;
 
+    // Dashboard Statistics
+    @FXML private Label totalCoursesLabel;
+    @FXML private Label completedQuizzesLabel;
+    @FXML private Label averageGradeLabel;
+    @FXML private Label paymentStatusShortLabel;
+
     // Available Courses Tab
     @FXML private TableView<Course> availableCoursesTable;
     @FXML private TableColumn<Course, String> availCourseCodeColumn;
@@ -116,6 +122,7 @@ public class StudentController {
                             " | Level: " + student.getLevel());
 
         // Load initial data
+        updateDashboardStatistics();
         checkPaymentStatus();
         loadPaymentHistory();
         loadAvailableCourses();
@@ -923,6 +930,59 @@ public class StudentController {
                 });
             }
         }).start();
+    }
+
+    // ==================== DASHBOARD STATISTICS ====================
+
+    /**
+     * Update dashboard statistics cards with current student data
+     */
+    private void updateDashboardStatistics() {
+        try {
+            // 1. Total Enrolled Courses
+            List<Course> enrolledCourses = enrollmentDAO.getCoursesByStudentId(currentStudent.getId());
+            int totalCourses = enrolledCourses.size();
+            totalCoursesLabel.setText(String.valueOf(totalCourses));
+
+            // 2. Completed Quizzes (compare total available vs completed)
+            List<QuizResult> myResults = quizResultService.getResultsByStudentId(currentStudent.getId());
+            int completedQuizzes = myResults.size();
+
+            // Get total available quizzes for enrolled courses
+            int totalAvailableQuizzes = 0;
+            for (Course course : enrolledCourses) {
+                List<Quiz> courseQuizzes = quizService.getQuizzesByCourseCode(course.getCode());
+                totalAvailableQuizzes += courseQuizzes.size();
+            }
+            completedQuizzesLabel.setText(completedQuizzes + "/" + totalAvailableQuizzes);
+
+            // 3. Average Grade
+            double averageGrade = currentStudent.getGrade();
+            averageGradeLabel.setText(String.format("%.2f%%", averageGrade));
+
+            // 4. Payment Status (short version)
+            boolean hasPaid = paymentService.hasUserPaidForLevel(
+                currentStudent.getId(),
+                currentStudent.getLevel()
+            );
+            if (hasPaid) {
+                paymentStatusShortLabel.setText("✅ PAID");
+                paymentStatusShortLabel.setStyle("-fx-text-fill: white;");
+            } else {
+                paymentStatusShortLabel.setText("❌ NOT PAID");
+                paymentStatusShortLabel.setStyle("-fx-text-fill: white;");
+            }
+
+            System.out.println("Dashboard statistics updated successfully");
+
+        } catch (Exception e) {
+            System.err.println("Error updating dashboard statistics: " + e.getMessage());
+            // Set default values on error
+            totalCoursesLabel.setText("0");
+            completedQuizzesLabel.setText("0/0");
+            averageGradeLabel.setText("0.00%");
+            paymentStatusShortLabel.setText("N/A");
+        }
     }
 
     // ==================== UTILITY METHODS ====================

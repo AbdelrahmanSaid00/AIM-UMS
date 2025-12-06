@@ -5,6 +5,7 @@ import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.image.Image;
 import javafx.stage.Stage;
 
 /**
@@ -32,6 +33,14 @@ public class App extends Application {
             primaryStage.setResizable(true);
             primaryStage.setMinWidth(800);
             primaryStage.setMinHeight(600);
+
+            // Set window icon
+            try {
+                Image icon = new Image(getClass().getResourceAsStream("/assets/Ain_Shams_logo.png"));
+                primaryStage.getIcons().add(icon);
+            } catch (Exception e) {
+                System.err.println("Warning: Could not load window icon: " + e.getMessage());
+            }
 
             // Handle application close
             primaryStage.setOnCloseRequest(event -> {
