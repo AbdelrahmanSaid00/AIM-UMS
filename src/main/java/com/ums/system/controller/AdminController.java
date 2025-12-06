@@ -689,6 +689,32 @@ public class AdminController {
             return;
         }
 
+        // Check if student has paid for their current level
+        try {
+            int currentLevel = selected.getLevel();
+            boolean hasPaid = paymentService.hasUserPaidForLevel(selected.getId(), currentLevel);
+
+            if (!hasPaid) {
+                double levelFee = paymentService.calculateLevelFee(currentLevel);
+
+                Alert warningAlert = new Alert(Alert.AlertType.WARNING);
+                warningAlert.setTitle("Payment Required");
+                warningAlert.setHeaderText("⚠️ Student Must Pay Current Level Fees First");
+                warningAlert.setContentText(
+                    "Student: " + selected.getName() + " (ID: " + selected.getId() + ")\n" +
+                    "Current Level: " + currentLevel + "\n" +
+                    "Required Fee: " + levelFee + " EGP\n\n" +
+                    "The student must pay their current level fees before you can update their level.\n" +
+                    "Please ensure the student completes payment first."
+                );
+                warningAlert.showAndWait();
+                return;
+            }
+        } catch (Exception e) {
+            showError("Error checking payment status: " + e.getMessage());
+            return;
+        }
+
         ChoiceDialog<String> dialog = new ChoiceDialog<>("2", "1", "2", "3", "4");
         dialog.setTitle("Update Student Level");
         dialog.setHeaderText("Update level for: " + selected.getName());
