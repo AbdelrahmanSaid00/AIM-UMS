@@ -42,7 +42,7 @@ public class TakeQuizController {
 
     private Timeline timeline;
     private int remainingSeconds;
-    private static final int QUIZ_TIME_MINUTES = 30;
+    private static final int QUIZ_TIME_MINUTES = 15;
 
     private QuizResultService quizResultService;
     private CourseService courseService;
@@ -235,6 +235,7 @@ public class TakeQuizController {
             if (timeline != null) {
                 timeline.stop();
             }
+            handleSubmit();
             closeQuizWindow();
         }
     }
